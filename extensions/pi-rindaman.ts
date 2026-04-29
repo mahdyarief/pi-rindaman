@@ -5,8 +5,6 @@ import { fileURLToPath } from "node:url";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
-type PiRindamanMode = "core" | "senior" | "reviewer" | "auto";
-type SecondaryLayer = "none" | "senior" | "reviewer";
 type CheckFreshness = "not_run" | "fresh" | "stale";
 
 type SessionQualityState = {
@@ -18,25 +16,24 @@ type SessionQualityState = {
   dirtySinceCheck?: boolean;
 };
 
-type SeniorEngineerActivation = {
-  active: boolean;
-  intent: "implementation" | "review" | "none";
-  reason: string;
-  intentSource: "forced-mode" | "auto-signals" | "none";
-  matchedSignals: string[];
-};
-
 type FinalResponseGate = {
   allowed: boolean;
   reason: string;
 };
 
+type CheckToolParams = {
+  mode?: "check" | "audit" | "doctor";
+  json?: boolean;
+  strict?: boolean;
+  report?: boolean;
+};
+
 const RINDAMAN_STATE_ENTRY = "pi_rindaman_state";
 
 const RINDAMAN_RULE = `
-pi-rindaman lifecycle and strict response mode is enabled.
+pi-rindaman verification mode is enabled.
 
-pi-rindaman combines strict response behavior with lifecycle code quality control.
+pi-rindaman is a verification and response-discipline layer. It does not own planning, orchestration, brainstorming, or workflow methodology.
 
 Strict response behavior:
 - Be concise and direct.
@@ -46,12 +43,16 @@ Strict response behavior:
 - Never reduce correctness for brevity.
 - Do not compress code blocks, commands, logs, stack traces, exact quoted text, paths, environment variables, API names, URLs, or version numbers.
 
-Code quality lifecycle:
+Verification lifecycle:
 1. Before editing: restate the task in one sentence, declare the minimal file footprint, and avoid excluded areas.
-2. During implementation: enforce domain naming, explicit types/contracts, simple structure, and no speculative code.
+2. During implementation: enforce domain naming, explicit types or contracts, simple structure, and no speculative code.
 3. Before completion: run verification checks when code changed.
 4. After failures: fix root causes, not symptoms. Do not silence checks with casts, ignores, mechanical renames, or unrelated deletion.
 5. Before final response: report changed files, checks run, and remaining risks.
+
+Boundaries:
+- Workflow planning, decomposition, brainstorming, orchestration, and review process ownership belong to separate workflow packages such as pi-superpowers-plus.
+- pi-rindaman owns verification readiness, final-response gating, and quality-check execution.
 
 Before completion:
 - Run pi-rindaman from the project root when available and code changed.
@@ -59,53 +60,11 @@ Before completion:
 - If verification is required and no passing pi_rindaman_check exists, explicitly state verification is pending or failed.
 `.trim();
 
-const RINDAMAN_SENIOR_RULE = `
-pi-rindaman senior fullstack implementation mode is enabled.
-
-This layer adds framework-agnostic web-product engineering doctrine.
-
-- Organize by feature or domain, not by generic layer dumping grounds.
-- Keep UI, application logic, domain rules, and infrastructure boundaries explicit.
-- Validate untrusted inputs at boundaries.
-- Prefer typed contracts for reads and mutations.
-- Treat server-side authorization as the source of truth.
-- Prefer integration evidence over mock-heavy confidence theater.
-`.trim();
-
-const RINDAMAN_REVIEWER_RULE = `
-pi-rindaman reviewer mode is enabled.
-
-Review doctrine:
-- Present findings first.
-- Prioritize bugs, regressions, security risks, and missing tests.
-- Prefer concrete behavioral risks over stylistic commentary.
-- If no findings are discovered, say so explicitly.
-- After findings, list residual risks or testing gaps briefly.
-`.trim();
-
-const IMPLEMENTATION_VERBS = ["implement", "build", "create", "add", "wire", "refactor"];
-const ARCHITECTURE_SIGNALS = [
-  "api",
-  "auth",
-  "schema",
-  "contract",
-  "database",
-  "data flow",
-  "feature architecture",
-  "backend",
-  "frontend",
-];
-const GOVERNANCE_SIGNALS = ["review", "status", "release", "verify", "push", "commit", "doctor"];
-const REVIEW_SIGNALS = ["review", "audit", "inspect", "find issues", "risks", "regression"];
-
 const extensionDirectory = fileURLToPath(new URL(".", import.meta.url));
 const cliPath = () => resolve(extensionDirectory, "..", "bin", "pi-rindaman.cjs");
 
 const sessionStates = new Map<string, SessionQualityState>();
 const sessionEnabledStates = new Map<string, boolean>();
-const sessionModeStates = new Map<string, PiRindamanMode>();
-const sessionSecondaryLayerStates = new Map<string, SecondaryLayer>();
-const sessionSeniorEngineerMetadata = new Map<string, SeniorEngineerActivation>();
 
 const getSessionState = (sessionId: string): SessionQualityState => {
   const existing = sessionStates.get(sessionId);
@@ -121,10 +80,10 @@ const normalizeCommandText = (text: string) =>
     .toLowerCase()
     .replace(/^[\s"'`([{]+|[\s"'`)\]}!,.?:;]+$/g, "");
 
-const getLastNormalizedCommandLine = (text: string) => {
-  const lines = text.split(/\r?\n/).map(normalizeCommandText).filter(Boolean);
-  return lines.at(-1);
-};
+const getNormalizedLines = (text: string) =>
+  text.split(/\r?\n/).map(normalizeCommandText).filter(Boolean);
+
+const getLastNormalizedCommandLine = (text: string) => getNormalizedLines(text).at(-1);
 
 const stripCommandPrefix = (text: string, commandName: string) => {
   const normalized = getLastNormalizedCommandLine(text);
@@ -143,18 +102,16 @@ const getToggle = (text: string) => {
   const onCommands = new Set([
     "/pi-rindaman on",
     "pi-rindaman on",
-    "/quality on",
-    "quality on",
     "/strict on",
+    "strict on",
     "strict mode",
     "be strict",
   ]);
   const offCommands = new Set([
     "/pi-rindaman off",
     "pi-rindaman off",
-    "/quality off",
-    "quality off",
     "/strict off",
+    "strict off",
     "normal mode",
     "stop strict",
   ]);
@@ -163,81 +120,13 @@ const getToggle = (text: string) => {
   if (onCommands.has(full)) return true;
   if (offCommands.has(full)) return false;
 
-  const lines = text.split(/\r?\n/).map(normalizeCommandText).filter(Boolean);
+  const lines = getNormalizedLines(text);
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     if (onCommands.has(lines[i])) return true;
     if (offCommands.has(lines[i])) return false;
   }
 
   return undefined;
-};
-
-const getModeOverride = (text: string): PiRindamanMode | undefined => {
-  const values: PiRindamanMode[] = ["core", "senior", "reviewer", "auto"];
-  const full = normalizeCommandText(text);
-  for (const value of values) {
-    if (full === `/pi-rindaman mode ${value}` || full === `pi-rindaman mode ${value}`) return value;
-  }
-
-  const lines = text.split(/\r?\n/).map(normalizeCommandText).filter(Boolean);
-  for (let i = lines.length - 1; i >= 0; i -= 1) {
-    for (const value of values) {
-      if (lines[i] === `/pi-rindaman mode ${value}` || lines[i] === `pi-rindaman mode ${value}`) {
-        return value;
-      }
-    }
-  }
-
-  return undefined;
-};
-
-const collectMatchedSignals = (text: string, signals: string[]) =>
-  signals.filter((signal) => text.includes(signal));
-
-const analyzeActivation = (text: string): SeniorEngineerActivation => {
-  const normalized = text.toLowerCase();
-  const implementationSignals = collectMatchedSignals(normalized, IMPLEMENTATION_VERBS);
-  const architectureSignals = collectMatchedSignals(normalized, ARCHITECTURE_SIGNALS);
-  const governanceSignals = collectMatchedSignals(normalized, GOVERNANCE_SIGNALS);
-  const reviewSignals = collectMatchedSignals(normalized, REVIEW_SIGNALS);
-
-  if (reviewSignals.length > 0) {
-    return {
-      active: false,
-      intent: "review",
-      reason: "review-oriented request detected",
-      intentSource: "auto-signals",
-      matchedSignals: reviewSignals,
-    };
-  }
-
-  if (governanceSignals.length > 0 && implementationSignals.length === 0) {
-    return {
-      active: false,
-      intent: "review",
-      reason: "governance-oriented request detected",
-      intentSource: "auto-signals",
-      matchedSignals: governanceSignals,
-    };
-  }
-
-  if (implementationSignals.length > 0 && architectureSignals.length > 0) {
-    return {
-      active: true,
-      intent: "implementation",
-      reason: "implementation and product-engineering signals detected",
-      intentSource: "auto-signals",
-      matchedSignals: [...implementationSignals, ...architectureSignals],
-    };
-  }
-
-  return {
-    active: false,
-    intent: "none",
-    reason: "no qualifying signals detected",
-    intentSource: "none",
-    matchedSignals: [],
-  };
 };
 
 const isVerificationRequired = (state: SessionQualityState) => state.changedFiles.length > 0;
@@ -310,9 +199,6 @@ const persistState = (pi: ExtensionAPI, sessionId: string) => {
     sessionId,
     quality: sessionStates.get(sessionId),
     enabled: sessionEnabledStates.get(sessionId) ?? true,
-    mode: sessionModeStates.get(sessionId),
-    secondaryLayer: sessionSecondaryLayerStates.get(sessionId) ?? "none",
-    seniorEngineer: sessionSeniorEngineerMetadata.get(sessionId),
   });
 };
 
@@ -325,15 +211,9 @@ const restoreState = (ctx: ExtensionContext) => {
       sessionId?: string;
       quality?: SessionQualityState;
       enabled?: boolean;
-      mode?: PiRindamanMode;
-      secondaryLayer?: SecondaryLayer;
-      seniorEngineer?: SeniorEngineerActivation;
     };
     if (data.quality) sessionStates.set(sessionId, data.quality);
     sessionEnabledStates.set(sessionId, data.enabled ?? true);
-    if (data.mode) sessionModeStates.set(sessionId, data.mode);
-    if (data.secondaryLayer) sessionSecondaryLayerStates.set(sessionId, data.secondaryLayer);
-    if (data.seniorEngineer) sessionSeniorEngineerMetadata.set(sessionId, data.seniorEngineer);
     return;
   }
   getSessionState(sessionId);
@@ -342,77 +222,45 @@ const restoreState = (ctx: ExtensionContext) => {
 
 const getSessionId = (ctx: ExtensionContext) => ctx.sessionManager.getSessionFile() ?? "default";
 
+const updateChangedFiles = (state: SessionQualityState, cwd: string) => {
+  const changedFiles = readChangedFiles(cwd);
+  if (changedFiles.length > 0) state.changedFiles = changedFiles;
+};
+
+const buildCheckCommandArgs = (params: CheckToolParams) => {
+  const mode = params.mode ?? "check";
+  const commandArgs = [cliPath()];
+
+  if (mode !== "check") commandArgs.push(mode);
+  if (params.json) commandArgs.push("--json");
+  if (params.strict) commandArgs.push("--strict");
+  if (params.report) commandArgs.push("--report");
+
+  return commandArgs;
+};
+
 export default function piRindaman(pi: ExtensionAPI) {
   pi.on("session_start", async (_event, ctx) => {
     restoreState(ctx);
   });
 
   pi.on("input", async (event, ctx) => {
-    const text = event.text ?? "";
+    const toggle = getToggle(event.text ?? "");
+    if (typeof toggle !== "boolean") return { action: "continue" };
+
     const sessionId = getSessionId(ctx);
-    const toggle = getToggle(text);
-    const mode = getModeOverride(text);
-
-    if (typeof toggle === "boolean") {
-      sessionEnabledStates.set(sessionId, toggle);
-      persistState(pi, sessionId);
-      if (ctx.hasUI) ctx.ui.notify(`pi-rindaman ${toggle ? "enabled" : "disabled"}.`, "info");
-      return { action: "handled" };
-    }
-
-    if (mode) {
-      sessionModeStates.set(sessionId, mode);
-      persistState(pi, sessionId);
-      if (ctx.hasUI) ctx.ui.notify(`pi-rindaman mode: ${mode}.`, "info");
-      return { action: "handled" };
-    }
-
-    return { action: "continue" };
+    sessionEnabledStates.set(sessionId, toggle);
+    persistState(pi, sessionId);
+    if (ctx.hasUI) ctx.ui.notify(`pi-rindaman ${toggle ? "enabled" : "disabled"}.`, "info");
+    return { action: "handled" };
   });
 
   pi.on("before_agent_start", async (event, ctx) => {
     const sessionId = getSessionId(ctx);
     const enabled = sessionEnabledStates.get(sessionId) ?? true;
-    const mode = sessionModeStates.get(sessionId) ?? "auto";
-    const activation = analyzeActivation(event.prompt);
-
-    const secondaryLayer: SecondaryLayer = !enabled
-      ? "none"
-      : mode === "senior"
-        ? "senior"
-        : mode === "reviewer"
-          ? "reviewer"
-          : mode === "core"
-            ? "none"
-            : activation.intent === "review"
-              ? "reviewer"
-              : activation.active
-                ? "senior"
-                : "none";
-
-    sessionSecondaryLayerStates.set(sessionId, secondaryLayer);
-    sessionSeniorEngineerMetadata.set(sessionId, {
-      ...activation,
-      active: secondaryLayer !== "none",
-      intentSource: mode === "auto" ? activation.intentSource : "forced-mode",
-      reason:
-        mode === "senior"
-          ? "senior mode forced"
-          : mode === "reviewer"
-            ? "reviewer mode forced"
-            : mode === "core"
-              ? "core mode forced"
-              : activation.reason,
-    });
     persistState(pi, sessionId);
-
     if (!enabled) return;
-
-    let systemPrompt = `${event.systemPrompt}\n\n${RINDAMAN_RULE}`;
-    if (secondaryLayer === "senior") systemPrompt += `\n\n${RINDAMAN_SENIOR_RULE}`;
-    if (secondaryLayer === "reviewer") systemPrompt += `\n\n${RINDAMAN_REVIEWER_RULE}`;
-
-    return { systemPrompt };
+    return { systemPrompt: `${event.systemPrompt}\n\n${RINDAMAN_RULE}` };
   });
 
   pi.on("tool_call", async (event, ctx) => {
@@ -446,15 +294,13 @@ export default function piRindaman(pi: ExtensionAPI) {
   pi.on("tool_result", async (event, ctx) => {
     if (event.toolName !== "bash") return undefined;
     const sessionId = getSessionId(ctx);
-    const state = getSessionState(sessionId);
-    const changedFiles = readChangedFiles(ctx.cwd);
-    if (changedFiles.length > 0) state.changedFiles = changedFiles;
+    updateChangedFiles(getSessionState(sessionId), ctx.cwd);
     persistState(pi, sessionId);
     return undefined;
   });
 
   pi.registerCommand("pi-rindaman", {
-    description: "Toggle pi-rindaman or change mode: on|off|mode <core|senior|reviewer|auto>",
+    description: "Toggle pi-rindaman verification mode: on|off",
     handler: async (args, ctx) => {
       const sessionId = getSessionId(ctx);
       const trimmed = stripCommandPrefix(args, "pi-rindaman");
@@ -471,32 +317,8 @@ export default function piRindaman(pi: ExtensionAPI) {
         ctx.ui.notify("pi-rindaman disabled.", "info");
         return;
       }
-      if (trimmed.startsWith("mode ")) {
-        const mode = trimmed.slice(5) as PiRindamanMode;
-        if (["core", "senior", "reviewer", "auto"].includes(mode)) {
-          sessionModeStates.set(sessionId, mode);
-          persistState(pi, sessionId);
-          ctx.ui.notify(`pi-rindaman mode: ${mode}.`, "info");
-          return;
-        }
-      }
 
-      ctx.ui.notify("Usage: /pi-rindaman on|off|mode <core|senior|reviewer|auto>", "error");
-    },
-  });
-
-  pi.registerCommand("quality", {
-    description: "Alias for /pi-rindaman on|off",
-    handler: async (args, ctx) => {
-      const value = stripCommandPrefix(args, "quality");
-      const sessionId = getSessionId(ctx);
-      if (value === "on" || value === "off") {
-        sessionEnabledStates.set(sessionId, value === "on");
-        persistState(pi, sessionId);
-        ctx.ui.notify(`pi-rindaman ${value === "on" ? "enabled" : "disabled"}.`, "info");
-        return;
-      }
-      ctx.ui.notify("Usage: /quality on|off", "error");
+      ctx.ui.notify("Usage: /pi-rindaman on|off", "error");
     },
   });
 
@@ -533,21 +355,13 @@ export default function piRindaman(pi: ExtensionAPI) {
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const sessionId = getSessionId(ctx);
       const state = getSessionState(sessionId);
-      const mode = params.mode ?? "check";
-      const commandArgs = [cliPath()];
-
-      if (mode !== "check") commandArgs.push(mode);
-      if (params.json) commandArgs.push("--json");
-      if (params.strict) commandArgs.push("--strict");
-      if (params.report) commandArgs.push("--report");
-
+      const commandArgs = buildCheckCommandArgs(params as CheckToolParams);
       const result = spawnSync("node", commandArgs, {
         cwd: ctx.cwd,
         encoding: "utf8",
       });
 
-      const changedFiles = readChangedFiles(ctx.cwd);
-      if (changedFiles.length > 0) state.changedFiles = changedFiles;
+      updateChangedFiles(state, ctx.cwd);
       state.lastCheckAt = new Date().toISOString();
       state.lastCheckCommand = ["node", ...commandArgs].join(" ");
       state.lastCheckExitCode = result.status;
@@ -605,8 +419,7 @@ export default function piRindaman(pi: ExtensionAPI) {
     async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
       const sessionId = getSessionId(ctx);
       const state = getSessionState(sessionId);
-      const changedFiles = readChangedFiles(ctx.cwd);
-      if (changedFiles.length > 0) state.changedFiles = changedFiles;
+      updateChangedFiles(state, ctx.cwd);
 
       const enabled = sessionEnabledStates.get(sessionId) ?? true;
       const checkFreshness = getCheckFreshness(state);
@@ -616,15 +429,6 @@ export default function piRindaman(pi: ExtensionAPI) {
         checkFreshness,
         finalResponse,
       );
-      const mode = sessionModeStates.get(sessionId) ?? "auto";
-      const secondaryLayer = sessionSecondaryLayerStates.get(sessionId) ?? "none";
-      const seniorEngineer = sessionSeniorEngineerMetadata.get(sessionId) ?? {
-        active: false,
-        intent: "none",
-        reason: "no activation analysis recorded",
-        intentSource: "none",
-        matchedSignals: [],
-      };
 
       persistState(pi, sessionId);
 
@@ -637,8 +441,6 @@ export default function piRindaman(pi: ExtensionAPI) {
                 enabled,
                 strictResponses: enabled,
                 qualityLifecycle: true,
-                mode,
-                secondaryLayer,
                 verificationRequired: isVerificationRequired(state),
                 checkFreshness,
                 nextAction,
@@ -649,22 +451,6 @@ export default function piRindaman(pi: ExtensionAPI) {
                   checkedAt: state.lastCheckAt ?? null,
                   exitCode: state.lastCheckExitCode ?? null,
                 },
-                seniorEngineer: {
-                  active: seniorEngineer.active,
-                  effectiveMode: mode,
-                  reason: seniorEngineer.reason,
-                  intent: seniorEngineer.intent,
-                  intentSource: seniorEngineer.intentSource,
-                  matchedSignals: seniorEngineer.matchedSignals,
-                },
-                reviewer: {
-                  active: secondaryLayer === "reviewer",
-                  reason:
-                    secondaryLayer === "reviewer"
-                      ? seniorEngineer.reason
-                      : "reviewer layer inactive",
-                  intent: secondaryLayer === "reviewer" ? seniorEngineer.intent : "none",
-                },
                 finalResponse,
               },
               null,
@@ -674,8 +460,6 @@ export default function piRindaman(pi: ExtensionAPI) {
         ],
         details: {
           enabled,
-          mode,
-          secondaryLayer,
         },
       };
     },

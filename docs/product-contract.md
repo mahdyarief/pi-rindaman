@@ -2,13 +2,22 @@
 
 ## Identity
 
-pi-rindaman is a Pi package with a companion local CLI.
+`pi-rindaman` is a Pi verification package with a companion local CLI.
 
-It combines:
-- core governance and verification
-- optional senior-engineer implementation guidance
-- optional reviewer guidance
+It owns:
+- strict response discipline
+- verification-before-completion behavior
+- final-response gating
 - CLI-backed quality, debt, baseline, workspace, and security checks
+
+It does not own:
+- brainstorming
+- implementation planning
+- orchestration of execution phases
+- general workflow monitoring methodology
+- review-process frameworks
+
+Those concerns belong in separate workflow packages such as `pi-superpowers-plus`.
 
 ## Pi Surfaces
 
@@ -16,7 +25,6 @@ It combines:
 
 The package provides a Pi extension that adds:
 - session toggles
-- mode commands
 - `pi_rindaman_check`
 - `pi_rindaman_status`
 - verification-aware session behavior
@@ -34,34 +42,25 @@ The package provides these stable CLI surfaces:
 - `baseline`
 - `doctor`
 
-## Layers
+## Commands
 
-- **Core** - always-on governance, verification, and final-response discipline
-- **Senior Engineer** - implementation-oriented engineering guidance
-- **Reviewer** - findings-first review guidance
-
-Core is always active when pi-rindaman is enabled. Senior Engineer and Reviewer are mutually exclusive secondary layers.
-
-## Modes
-
-- `core`
-- `senior`
-- `reviewer`
-- `auto`
-
-Mode precedence:
-1. session override command
-2. default `auto`
+Stable Pi command surfaces:
+- `/pi-rindaman on`
+- `/pi-rindaman off`
+- `/strict on`
+- `/strict off`
 
 ## Status Contract
 
 Canonical status concepts:
-- `mode`
-- `secondaryLayer`
+- `enabled`
+- `strictResponses`
+- `qualityLifecycle`
 - `verificationRequired`
+- `checkFreshness`
+- `nextAction`
+- `changedFiles`
 - `lastCheck`
-- `seniorEngineer`
-- `reviewer`
 - `finalResponse`
 
 ## Stability Levels
@@ -69,17 +68,34 @@ Canonical status concepts:
 ### Stable
 
 - tool names
-- mode names
 - top-level CLI commands
+- documented Pi command names
 - top-level `pi_rindaman_status` contract semantics
-- Pi command names documented in README
+- verification and final-response gating behavior
 
 ### Experimental
 
-- auto activation heuristics
-- matched signal details
-- exact secondary-layer intent inference
+- exact system-prompt wording
+- exact skip/failure reason phrasing
+- internal state persistence shape beyond the documented status semantics
 
-## Product Notes
+## Documentation Contract
 
-The `core` layer covers response discipline, verification, and quality governance. The `senior` and `reviewer` layers extend that core with task-specific guidance rather than changing the base contract.
+Current product-facing docs:
+- `docs/README.md`
+- `docs/product-contract.md`
+- `docs/releasing.md`
+
+Historical overlap-era planning and design files are archived under `docs/archive/overlap-era/` and are not part of the active package contract.
+
+## Composition Contract
+
+`pi-rindaman` is designed to compose with workflow packages.
+
+Expected composition:
+- workflow package decides how work is planned and executed
+- `pi-rindaman` decides whether completion is verified and safe to claim
+
+If both packages are installed:
+- workflow package owns planning and orchestration
+- `pi-rindaman` owns verification readiness and final-response discipline

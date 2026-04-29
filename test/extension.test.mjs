@@ -6,7 +6,7 @@ import piRindaman from "../extensions/pi-rindaman.ts";
 
 const minimalFixtureDirectory = resolve(import.meta.dirname, "fixtures", "minimal-project");
 
-function createCommandTestHarness() {
+function createCommandTestHarness(sessionId = "test-session") {
   const commands = new Map();
   const tools = new Map();
   const notifications = [];
@@ -35,7 +35,7 @@ function createCommandTestHarness() {
     },
     sessionManager: {
       getSessionFile() {
-        return "test-session";
+        return sessionId;
       },
       getBranch() {
         return [];
@@ -48,20 +48,20 @@ function createCommandTestHarness() {
   return { commands, tools, notifications, entries, ctx };
 }
 
-test("slash command handlers accept full command text arguments", async () => {
-  const { commands, notifications, ctx } = createCommandTestHarness();
+test("extension exposes verification-only commands and strict toggles", async () => {
+  const { commands, notifications, ctx } = createCommandTestHarness("commands-session");
+
+  assert.equal(commands.has("quality"), false);
 
   await commands.get("pi-rindaman").handler("/pi-rindaman on", ctx);
   await commands.get("pi-rindaman").handler("/pi-rindaman mode reviewer", ctx);
-  await commands.get("quality").handler("/quality on", ctx);
   await commands.get("strict").handler("/strict off", ctx);
 
   assert.deepEqual(
     notifications.map(({ message, level }) => ({ message, level })),
     [
       { message: "pi-rindaman enabled.", level: "info" },
-      { message: "pi-rindaman mode: reviewer.", level: "info" },
-      { message: "pi-rindaman enabled.", level: "info" },
+      { message: "Usage: /pi-rindaman on|off", level: "error" },
       { message: "Strict mode disabled.", level: "info" },
     ],
   );
@@ -69,7 +69,7 @@ test("slash command handlers accept full command text arguments", async () => {
 
 test("pi_rindaman_check resolves the bundled CLI outside the active repo", async () => {
   const originalCwd = process.cwd();
-  const { tools, ctx } = createCommandTestHarness();
+  const { tools, ctx } = createCommandTestHarness("check-session");
 
   process.chdir(minimalFixtureDirectory);
 
@@ -83,4 +83,26 @@ test("pi_rindaman_check resolves the bundled CLI outside the active repo", async
   } finally {
     process.chdir(originalCwd);
   }
+});
+
+test("pi_rindaman_status reports verification-only status semantics", async () => {
+  const { tools, ctx } = createCommandTestHarness("status-session");
+
+  const result = await tools
+    .get("pi_rindaman_status")
+    .execute("tool-call-2", {}, undefined, undefined, ctx);
+
+  const status = JSON.parse(result.content[0].text);
+
+  assert.equal(status.enabled, true);
+  assert.equal(status.strictResponses, true);
+  assert.equal(status.qualityLifecycle, true);
+  assert.equal(typeof status.verificationRequired, "boolean");
+  assert.equal(typeof status.checkFreshness, "string");
+  assert.ok(status.lastCheck);
+  assert.ok(status.finalResponse);
+  assert.equal("mode" in status, false);
+  assert.equal("secondaryLayer" in status, false);
+  assert.equal("seniorEngineer" in status, false);
+  assert.equal("reviewer" in status, false);
 });

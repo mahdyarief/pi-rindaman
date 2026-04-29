@@ -1,17 +1,34 @@
 # pi-rindaman
 
-Pi package and CLI for strict response discipline, lifecycle verification, and project quality checks.
+Pi verification package and local CLI for strict response discipline, lifecycle verification, and project quality checks.
 
 ![pi-rindaman](./pi-rindaman.png)
 
-## What this package is
+## Purpose
 
-`pi-rindaman` is now a Pi-first package.
+`pi-rindaman` is a **verification layer**, not a workflow framework.
 
-It provides:
-- a Pi extension at `extensions/pi-rindaman.ts`
-- a Pi skill at `skills/pi-rindaman/SKILL.md`
-- a local CLI at `bin/pi-rindaman.cjs`
+It owns:
+- strict response discipline
+- verification-before-completion behavior
+- project quality checks through the bundled CLI
+- final-response gating based on recorded verification state
+
+It does **not** own:
+- brainstorming
+- planning
+- execution orchestration
+- code review workflow methodology
+- general developer operating-system behavior
+
+Those concerns belong in workflow packages such as `pi-superpowers-plus`.
+
+## Package surfaces
+
+This repository publishes three Pi-facing surfaces:
+- extension: `extensions/pi-rindaman.ts`
+- skill: `skills/pi-rindaman/SKILL.md`
+- CLI: `bin/pi-rindaman.cjs`
 
 This repository no longer presents the legacy plugin runtime as a public surface.
 
@@ -33,32 +50,6 @@ Install project-locally:
 
 ```bash
 pi install -l .
-```
-
-If you want to clone or enter the repo before a local install, use commands that match your shell.
-
-PowerShell:
-
-```powershell
-Set-Location D:\Github
-if (Test-Path .\pi-rindaman) {
-  Set-Location .\pi-rindaman
-} else {
-  git clone https://github.com/mahdyarief/pi-rindaman.git
-  Set-Location .\pi-rindaman
-}
-```
-
-Bash:
-
-```bash
-if [ -d /d/Github/pi-rindaman ]; then
-  cd /d/Github/pi-rindaman
-else
-  cd /d/Github
-  git clone https://github.com/mahdyarief/pi-rindaman.git
-  cd pi-rindaman
-fi
 ```
 
 ## Expected `pi list`
@@ -83,34 +74,18 @@ User packages:
 ### Skill
 
 - `skills/pi-rindaman/SKILL.md`
-
-Provides:
-- `/skill:pi-rindaman`
+- provides `/skill:pi-rindaman`
 
 ### Extension
 
 - `extensions/pi-rindaman.ts`
-
-Provides:
-- `/pi-rindaman on`
-- `/pi-rindaman off`
-- `/pi-rindaman mode core`
-- `/pi-rindaman mode senior`
-- `/pi-rindaman mode reviewer`
-- `/pi-rindaman mode auto`
-- `/quality on`
-- `/quality off`
-- `/strict on`
-- `/strict off`
-- `pi_rindaman_check`
-- `pi_rindaman_status`
-
-## Modes
-
-- `core` - governance only
-- `senior` - governance plus implementation-oriented engineering guidance
-- `reviewer` - governance plus findings-first review guidance
-- `auto` - governance always, layer chosen from request intent
+- provides:
+  - `/pi-rindaman on`
+  - `/pi-rindaman off`
+  - `/strict on`
+  - `/strict off`
+  - `pi_rindaman_check`
+  - `pi_rindaman_status`
 
 ## Verification workflow in Pi
 
@@ -140,6 +115,39 @@ pi-rindaman check --json --project-root /path/to/project
 pi-rindaman doctor --json --project-root /path/to/project
 ```
 
+## Publish-ready contract
+
+Stable public surfaces:
+- CLI commands: `check`, `audit`, `baseline`, `doctor`
+- Pi tools: `pi_rindaman_check`, `pi_rindaman_status`
+- Pi commands: `/pi-rindaman on`, `/pi-rindaman off`, `/strict on`, `/strict off`
+- verification status concepts: `verificationRequired`, `checkFreshness`, `lastCheck`, `finalResponse`
+
+Active product docs live at:
+- `docs/product-contract.md`
+- `docs/releasing.md`
+- `docs/README.md`
+
+Archived overlap-era design history lives under:
+- `docs/archive/overlap-era/`
+
+Archived documents are not package API.
+
+## Works with pi-superpowers-plus
+
+| Concern | pi-rindaman | pi-superpowers-plus |
+|---|---|---|
+| Final-response discipline | Owns | May compose with |
+| Verification gating | Owns | May invoke |
+| CLI quality checks | Owns | May invoke |
+| Brainstorming and planning | Does not own | Owns |
+| Execution orchestration | Does not own | Owns |
+| Workflow methodology | Does not own | Owns |
+
+Recommended composition:
+- install `pi-superpowers-plus` for planning and execution workflow
+- install `pi-rindaman` for verification readiness and completion gating
+
 ## Development
 
 ```bash
@@ -147,6 +155,7 @@ npm install
 npm test
 npm run format:check
 npm run knip
+npm run typecheck
 ```
 
 ## Release verification
@@ -155,7 +164,10 @@ npm run knip
 npm run release:check
 ```
 
-This now verifies:
+This verifies:
+- typecheck
+- formatting
+- unused-code scan
 - tests
 - package doctor
 - package-wide `check --json --all`
@@ -167,12 +179,14 @@ This now verifies:
 ```text
 pi-rindaman/
 ├── bin/
+├── docs/
 ├── extensions/
 │   └── pi-rindaman.ts
 ├── skills/
 │   └── pi-rindaman/
 │       └── SKILL.md
 ├── src/
+│   ├── cli/
 │   └── quality-engine/
 ├── test/
 └── package.json
@@ -183,3 +197,4 @@ pi-rindaman/
 - discoverable through the `pi` manifest and `pi-package` keyword
 - Pi loads the extension directly from TypeScript
 - the extension imports `@sinclair/typebox`, so that package is declared as a peer dependency
+- `pi-rindaman` is designed to compose with `pi-superpowers-plus`, not replace it

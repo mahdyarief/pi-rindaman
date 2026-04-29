@@ -1,43 +1,29 @@
 ---
 name: pi-rindaman
-description: Strict response discipline plus lifecycle verification guidance for implementation, review, and completion. Use when you want pi-rindaman's Pi workflow, commands, and quality tools in a session.
+description: Strict response discipline plus lifecycle verification tools for implementation and completion. Use when you want verification readiness, final-response gating, and quality checks in a session.
 ---
 
 # pi-rindaman
 
-pi-rindaman is a Pi skill and extension package for code-quality governance.
+`pi-rindaman` is a Pi skill and extension package for verification-aware coding sessions.
 
-It combines:
+It provides:
 - strict, concise response discipline
-- implementation and review guidance layers
 - verification-before-completion behavior
 - Pi tools for session quality status and checks
+- a local CLI for project quality verification
+
+It does not provide planning, orchestration, brainstorming, or workflow methodology. Those concerns belong to workflow packages such as `pi-superpowers-plus`.
 
 ## What the extension provides
 
 When the package is installed, the bundled Pi extension adds:
 - `/pi-rindaman on`
 - `/pi-rindaman off`
-- `/pi-rindaman mode core`
-- `/pi-rindaman mode senior`
-- `/pi-rindaman mode reviewer`
-- `/pi-rindaman mode auto`
-- `/quality on` / `/quality off`
-- `/strict on` / `/strict off`
+- `/strict on`
+- `/strict off`
 - `pi_rindaman_check`
 - `pi_rindaman_status`
-
-## Modes
-
-- `core` — governance only
-- `senior` — governance plus implementation-oriented senior-engineer guidance
-- `reviewer` — governance plus findings-first review guidance
-- `auto` — governance always, secondary layer chosen from request intent
-
-In `auto` mode:
-- implementation + engineering context activates the senior layer
-- review-oriented prompts activate the reviewer layer
-- generic status/release/governance prompts stay core-only
 
 ## Verification workflow
 
@@ -75,7 +61,6 @@ pi-rindaman check --json
 pi-rindaman audit --json
 pi-rindaman doctor --json
 ```
-
 
 ## Package install
 

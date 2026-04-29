@@ -1,7 +1,7 @@
 {
   "name": "pi-rindaman",
   "version": "1.0.0",
-  "description": "Pi package and CLI for strict response discipline, lifecycle verification, and quality checks.",
+  "description": "Pi verification package and CLI for strict response discipline, lifecycle verification, and quality checks.",
   "type": "module",
   "bin": {
     "pi-rindaman": "bin/pi-rindaman.cjs"
@@ -34,6 +34,7 @@
     "pi-extension",
     "pi-skill",
     "quality",
+    "verification",
     "code-quality",
     "typescript",
     "biome",
