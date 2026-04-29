@@ -1,6 +1,0 @@
-{
-  "plugin": [
-    "superpowers@git+https://github.com/obra/superpowers.git",
-    "rindaman@git+https://github.com/mahdyarief/rindaman.git"
-  ]
-}
