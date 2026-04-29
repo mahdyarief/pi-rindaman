@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a read-only security audit check to Rindaman that surfaces vulnerability severity counts and can block by policy.
+**Goal:** Add a read-only security audit check to pi-rindaman that surfaces vulnerability severity counts and can block by policy.
 
 **Architecture:** Extend the modular CLI by adding security audit execution to `src/cli/check-runner.cjs` and policy evaluation to `src/cli/policy.cjs`. Reuse existing CLI result assembly and fixture-backed tests rather than introducing a new command surface.
 
@@ -15,7 +15,7 @@
 - Modify: `src/cli/config.cjs` for security config defaults and override merging.
 - Modify: `src/cli/check-runner.cjs` for `npm audit --json` execution and normalized severity summaries.
 - Modify: `src/cli/policy.cjs` for security severity blocking rules.
-- Modify: `bin/rindaman.cjs` only if output wiring needs the new security check summary.
+- Modify: `bin/pi-rindaman.cjs` only if output wiring needs the new security check summary.
 - Modify: `test/cli.test.mjs` for security audit tests.
 - Modify: `README.md` for configuration and behavior docs.
 
@@ -84,9 +84,9 @@ Add near the other CLI tests:
 ```js
 test("CLI security check skips when no lockfile exists", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-skip-fixture",
+    "pi-rindaman-security-skip-fixture",
     {
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           types: false,
@@ -115,9 +115,9 @@ Add:
 ```js
 test("CLI security check summarizes severity counts", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-summary-fixture",
+    "pi-rindaman-security-summary-fixture",
     {
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           types: false,
@@ -307,9 +307,9 @@ Add:
 ```js
 test("CLI security check does not block on moderate-only by default", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-moderate-fixture",
+    "pi-rindaman-security-moderate-fixture",
     {
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           types: false,
@@ -351,9 +351,9 @@ Add:
 ```js
 test("CLI security config can block on moderate vulnerabilities", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-fail-moderate-fixture",
+    "pi-rindaman-security-fail-moderate-fixture",
     {
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           types: false,
@@ -451,7 +451,7 @@ Add a short section after baseline docs:
 ```md
 ### Security audit
 
-Rindaman can run `npm audit --json` as a read-only security check when `package-lock.json` is present.
+pi-rindaman can run `npm audit --json` as a read-only security check when `package-lock.json` is present.
 
 By default, high and critical vulnerabilities block `check`, while moderate vulnerabilities are reported without blocking.
 ```
@@ -485,7 +485,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

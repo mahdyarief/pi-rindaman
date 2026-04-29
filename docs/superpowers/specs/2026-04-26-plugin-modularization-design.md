@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman's plugin logic now handles core governance, final-response gating, optional senior fullstack guidance, tool execution, and session state in a single `src/index.ts` file. The next production-grade increment is a behavior-preserving refactor to make plugin evolution safer.
+pi-rindaman's plugin logic now handles core governance, final-response gating, optional senior fullstack guidance, tool execution, and session state in a single `src/index.ts` file. The next production-grade increment is a behavior-preserving refactor to make plugin evolution safer.
 
 ## Scope
 
@@ -36,7 +36,7 @@ Recommended module split under `src/plugin/`:
 - `toggles.ts` - command parsing and enable/disable decisions
 - `intent.ts` - senior fullstack activation heuristic
 - `rule-messages.ts` - rule message markers and constructors
-- `tools.ts` - `rindaman_check` and `rindaman_status`
+- `tools.ts` - `pi_rindaman_check` and `pi_rindaman_status`
 
 `src/index.ts` remains the composition layer that wires the modules into the OpenCode plugin hooks.
 
@@ -69,7 +69,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

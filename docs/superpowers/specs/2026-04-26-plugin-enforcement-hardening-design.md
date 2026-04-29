@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman's CLI now provides strong verification behavior. The plugin should expose clearer enforcement state so OpenCode sessions know whether final responses are safe, pending verification, or blocked by failed checks.
+pi-rindaman's CLI now provides strong verification behavior. The plugin should expose clearer enforcement state so OpenCode sessions know whether final responses are safe, pending verification, or blocked by failed checks.
 
 This increment strengthens plugin-side enforcement metadata and rule injection without claiming hard response blocking beyond what OpenCode APIs support.
 
@@ -18,7 +18,7 @@ Improve plugin state and tool responses for:
 - `finalResponse.allowed`
 - `finalResponse.reason`
 
-`rindaman_status` should return a structured object like:
+`pi_rindaman_status` should return a structured object like:
 
 ```json
 {
@@ -42,7 +42,7 @@ Improve plugin state and tool responses for:
 Rule injection should say:
 
 - final responses must include changed files, checks run, and remaining risks
-- if verification is required and no passing `rindaman_check` exists, final response must explicitly say verification is pending or failed
+- if verification is required and no passing `pi_rindaman_check` exists, final response must explicitly say verification is pending or failed
 - no completion claim should be made when `finalResponse.allowed` is false
 - if quality lifecycle is disabled, final response is allowed with reason `quality lifecycle disabled`
 
@@ -59,22 +59,22 @@ Keep enforcement state inside the plugin module. Add a small gate evaluator that
 
 The plugin should continue exposing the same tool names:
 
-- `rindaman_check`
-- `rindaman_status`
+- `pi_rindaman_check`
+- `pi_rindaman_status`
 
-`rindaman_check` updates `lastCheck` and changed-file state. `rindaman_status` reports the current state plus final-response gate metadata.
+`pi_rindaman_check` updates `lastCheck` and changed-file state. `pi_rindaman_status` reports the current state plus final-response gate metadata.
 
 ## Data Flow
 
 1. Plugin initializes default state from options.
 2. Rule injection tells the assistant how to behave before final response.
-3. `rindaman_status` computes changed files and gate metadata.
-4. `rindaman_check` runs verification, records command/status/timestamp, and returns updated status.
+3. `pi_rindaman_status` computes changed files and gate metadata.
+4. `pi_rindaman_check` runs verification, records command/status/timestamp, and returns updated status.
 5. Final-response rules use the status output and gate metadata to prevent false completion claims.
 
 ## Error Handling
 
-Failed `rindaman_check` results should set `lastCheck.status` to `failed` and `finalResponse.allowed` to false when verification is required.
+Failed `pi_rindaman_check` results should set `lastCheck.status` to `failed` and `finalResponse.allowed` to false when verification is required.
 
 Tool execution errors should set `lastCheck.status` to `error` and expose the error message without throwing unstructured data to the caller.
 
@@ -87,9 +87,9 @@ Use existing plugin tests in `test/plugin.test.mjs`.
 Add coverage for:
 
 - dirty session requires verification
-- passing `rindaman_check` allows final response
-- failed `rindaman_check` marks final response as not allowed
-- `rindaman_status` exposes `finalResponse` metadata
+- passing `pi_rindaman_check` allows final response
+- failed `pi_rindaman_check` marks final response as not allowed
+- `pi_rindaman_status` exposes `finalResponse` metadata
 - `/quality off` bypasses verification requirement
 - existing strict and quality toggles still work
 
@@ -97,7 +97,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

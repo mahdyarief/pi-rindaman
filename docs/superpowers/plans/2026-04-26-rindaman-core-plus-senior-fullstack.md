@@ -1,10 +1,10 @@
-# Rindaman Core Plus Senior Fullstack Implementation Plan
+# pi-rindaman Core Plus Senior Fullstack Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Expand Rindaman into one plugin with two internal layers: always-on governance plus optional senior fullstack implementation guidance.
+**Goal:** Expand pi-rindaman into one plugin with two internal layers: always-on governance plus optional senior fullstack implementation guidance.
 
-**Architecture:** Keep the existing core rule intact and add a second stack-agnostic implementation rule that activates only for implementation-oriented requests. Expose the activation state through `rindaman_status` and cover it with plugin tests.
+**Architecture:** Keep the existing core rule intact and add a second stack-agnostic implementation rule that activates only for implementation-oriented requests. Expose the activation state through `pi_rindaman_status` and cover it with plugin tests.
 
 **Tech Stack:** TypeScript OpenCode plugin, message-transform hooks, `node:test`, built `dist` plugin tests.
 
@@ -12,7 +12,7 @@
 
 ## File Structure
 
-- Modify: `src/rindaman-rule.ts` to add the second rule and marker.
+- Modify: `src/pi-rindaman-rule.ts` to add the second rule and marker.
 - Modify: `src/index.ts` to add activation logic and status reporting.
 - Modify: `test/plugin.test.mjs` to validate layered injection behavior.
 - Modify: `README.md` to explain the two-layer model.
@@ -20,7 +20,7 @@
 ## Task 1: Add Senior Fullstack Rule Text
 
 **Files:**
-- Modify: `src/rindaman-rule.ts`
+- Modify: `src/pi-rindaman-rule.ts`
 
 - [ ] **Step 1: Add marker constant**
 
@@ -92,7 +92,7 @@ import {
   RINDAMAN_RULE_MARKER,
   RINDAMAN_SENIOR_FULLSTACK_RULE,
   RINDAMAN_SENIOR_FULLSTACK_RULE_MARKER,
-} from "./rindaman-rule.js";
+} from "./pi-rindaman-rule.js";
 ```
 
 - [ ] **Step 2: Add intent keyword sets**
@@ -148,7 +148,7 @@ const isImplementationOrArchitectureRequest = (text: string) => {
 
 - [ ] **Step 4: Add activation decision helper**
 
-Add after `getRindamanEnabled`:
+Add after `getpi-rindamanEnabled`:
 
 ```ts
 const getSeniorFullstackEnabled = (messages: TransformMessage[]) => {
@@ -188,7 +188,7 @@ Expected: activation helpers compile.
 
 - [ ] **Step 1: Add helper to detect second rule messages**
 
-Add after `isRindamanRuleMessage`:
+Add after `ispi-rindamanRuleMessage`:
 
 ```ts
 const isSeniorFullstackRuleMessage = (message: TransformMessage) =>
@@ -202,7 +202,7 @@ const isSeniorFullstackRuleMessage = (message: TransformMessage) =>
 
 - [ ] **Step 2: Add senior fullstack rule message creator**
 
-Add after `createRindamanRuleMessage`:
+Add after `createpi-rindamanRuleMessage`:
 
 ```ts
 const createSeniorFullstackRuleMessage = (): TransformMessage => ({
@@ -224,17 +224,17 @@ const createSeniorFullstackRuleMessage = (): TransformMessage => ({
 In `experimental.chat.messages.transform`, filter out both rule types:
 
 ```ts
-      const messagesWithoutRindamanRules = transformOutput.messages.filter(
+      const messagesWithoutpi-rindamanRules = transformOutput.messages.filter(
         (message) =>
-          !isRindamanRuleMessage(message) && !isSeniorFullstackRuleMessage(message),
+          !ispi-rindamanRuleMessage(message) && !isSeniorFullstackRuleMessage(message),
       );
 ```
 
 Compute:
 
 ```ts
-      const enabled = resolvedOptions.enabled && getRindamanEnabled(messagesWithoutRindamanRules);
-      const seniorFullstackEnabled = enabled && getSeniorFullstackEnabled(messagesWithoutRindamanRules);
+      const enabled = resolvedOptions.enabled && getpi-rindamanEnabled(messagesWithoutpi-rindamanRules);
+      const seniorFullstackEnabled = enabled && getSeniorFullstackEnabled(messagesWithoutpi-rindamanRules);
 ```
 
 Set messages:
@@ -242,16 +242,16 @@ Set messages:
 ```ts
       transformOutput.messages = enabled
         ? [
-            createRindamanRuleMessage(),
+            createpi-rindamanRuleMessage(),
             ...(seniorFullstackEnabled ? [createSeniorFullstackRuleMessage()] : []),
-            ...messagesWithoutRindamanRules,
+            ...messagesWithoutpi-rindamanRules,
           ]
-        : messagesWithoutRindamanRules;
+        : messagesWithoutpi-rindamanRules;
 ```
 
 - [ ] **Step 4: Add helper in tests to count second rule**
 
-In `test/plugin.test.mjs`, add after `getRindamanRuleMessages`:
+In `test/plugin.test.mjs`, add after `getpi-rindamanRuleMessages`:
 
 ```js
 const getSeniorFullstackRuleMessages = (messages) =>
@@ -275,7 +275,7 @@ test("implementation requests inject senior fullstack guidance", async () => {
     createMessage("user", "Implement a new auth flow for the dashboard"),
   ]);
 
-  assert.equal(getRindamanRuleMessages(messages).length, 1);
+  assert.equal(getpi-rindamanRuleMessages(messages).length, 1);
   assert.equal(getSeniorFullstackRuleMessages(messages).length, 1);
 });
 ```
@@ -288,7 +288,7 @@ test("release or status requests do not inject senior fullstack guidance", async
     createMessage("user", "Check release status and verify the branch"),
   ]);
 
-  assert.equal(getRindamanRuleMessages(messages).length, 1);
+  assert.equal(getpi-rindamanRuleMessages(messages).length, 1);
   assert.equal(getSeniorFullstackRuleMessages(messages).length, 0);
 });
 ```
@@ -307,7 +307,7 @@ Expected: new layered injection tests pass.
 
 - [ ] **Step 1: Add status field**
 
-In `createRindamanStatusTool`, compute:
+In `createpi-rindamanStatusTool`, compute:
 
 ```ts
       const seniorFullstackActive = false;
@@ -336,7 +336,7 @@ When message transform determines `seniorFullstackEnabled`, record it by session
 - [ ] **Step 3: Add status test**
 
 ```js
-test("rindaman_status reports senior fullstack activation state", async () => {
+test("pi_rindaman_status reports senior fullstack activation state", async () => {
   const hooks = await server();
   const context = createToolContext();
   const output = createOutput([
@@ -368,7 +368,7 @@ Add a short section near the top:
 ```md
 ## Two-Layer Model
 
-Rindaman combines:
+pi-rindaman combines:
 
 - **Core** - strict response mode, lifecycle verification, and quality governance
 - **Senior Fullstack** - optional framework-agnostic web-product engineering guidance for implementation-oriented tasks
@@ -407,7 +407,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 
@@ -421,4 +421,4 @@ Expected: package dry-run succeeds.
 
 Run: `git status --short`
 
-Expected: only intended combined-Rindaman files are modified.
+Expected: only intended combined-pi-rindaman files are modified.

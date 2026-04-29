@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add deterministic CLI fixture coverage for Rindaman setup and failure modes.
+**Goal:** Add deterministic CLI fixture coverage for pi-rindaman setup and failure modes.
 
 **Architecture:** Keep tests in `test/cli.test.mjs` and add minimal fixtures under `test/fixtures/`. Production CLI changes are allowed only where tests expose broken or ambiguous behavior.
 
-**Tech Stack:** Node.js, `node:test`, `node:assert/strict`, `spawnSync`, Rindaman CLI JSON output.
+**Tech Stack:** Node.js, `node:test`, `node:assert/strict`, `spawnSync`, pi-rindaman CLI JSON output.
 
 ---
 
@@ -20,9 +20,9 @@
 - Create: `test/fixtures/formatter-failure/node_modules/.bin/prettier` for POSIX-compatible fixture path.
 - Create: `test/fixtures/missing-package/.gitkeep` so the fixture directory is tracked.
 - Create: `test/fixtures/no-git-project/package.json` for a package outside git metadata assumptions.
-- Create: `test/fixtures/config-precedence/package.json` with package-level Rindaman config.
-- Create: `test/fixtures/config-precedence/.rindamanrc.json` with file-level override.
-- Modify: `bin/rindaman.cjs` only if needed to make missing `package.json` and no-git cases deterministic.
+- Create: `test/fixtures/config-precedence/package.json` with package-level pi-rindaman config.
+- Create: `test/fixtures/config-precedence/.pi-rindamanrc.json` with file-level override.
+- Modify: `bin/pi-rindaman.cjs` only if needed to make missing `package.json` and no-git cases deterministic.
 
 ## Task 1: Add Test Helpers
 
@@ -74,7 +74,7 @@ Expected: existing tests pass.
   "scripts": {
     "typecheck": "node -e \"process.exit(1)\""
   },
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "syntax": false,
@@ -131,7 +131,7 @@ Expected: pass or reveal CLI issue to fix minimally.
 
 ```json
 {
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "types": false,
@@ -204,13 +204,13 @@ Expected: pass or reveal CLI issue to fix minimally.
 - Create: `test/fixtures/missing-package/.gitkeep`
 - Create: `test/fixtures/no-git-project/package.json`
 - Modify: `test/cli.test.mjs`
-- Modify: `bin/rindaman.cjs` only if no-git detection crashes or misreports.
+- Modify: `bin/pi-rindaman.cjs` only if no-git detection crashes or misreports.
 
 - [ ] **Step 1: Create no-git fixture package**
 
 ```json
 {
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "types": false,
@@ -320,17 +320,17 @@ Expected: pass.
 
 **Files:**
 - Create: `test/fixtures/config-precedence/package.json`
-- Create: `test/fixtures/config-precedence/.rindamanrc.json`
+- Create: `test/fixtures/config-precedence/.pi-rindamanrc.json`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Create package-level config fixture**
 
 ```json
 {
-  "rindaman": {
+  "pi-rindaman": {
     "changedOnly": false,
     "strictWarnings": false,
-    "reportPath": ".rindaman/from-package.md",
+    "reportPath": ".pi-rindaman/from-package.md",
     "ignorePatterns": ["package-ignore/**"],
     "checks": {
       "semantic": false,
@@ -348,7 +348,7 @@ Expected: pass.
 {
   "changedOnly": true,
   "strictWarnings": false,
-  "reportPath": ".rindaman/from-file.md",
+  "reportPath": ".pi-rindaman/from-file.md",
   "ignorePatterns": ["file-ignore/**"],
   "checks": {
     "types": false,
@@ -375,7 +375,7 @@ Add test:
 ```js
 test("CLI config precedence applies defaults, package config, file config, then flags", () => {
   const result = runCli(
-    ["check", "--json", "--all", "--strict", "--report-path", ".rindaman/from-flag.md"],
+    ["check", "--json", "--all", "--strict", "--report-path", ".pi-rindaman/from-flag.md"],
     configPrecedenceFixtureDirectory,
   );
 
@@ -420,7 +420,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

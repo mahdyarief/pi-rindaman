@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman already has a structured CLI, JSON output, config loading, local-tool safety, and CI coverage. The next production-grade increment is to protect those behaviors with deterministic fixture tests before adding larger features.
+pi-rindaman already has a structured CLI, JSON output, config loading, local-tool safety, and CI coverage. The next production-grade increment is to protect those behaviors with deterministic fixture tests before adding larger features.
 
 This work closes the first known production gap: broader fixture coverage for failure modes and setup variations.
 
@@ -16,7 +16,7 @@ Add focused CLI tests and minimal fixtures for these cases:
 - A non-git project does not crash `check --json`.
 - Missing local tools are skipped as warnings by default.
 - `--strict` converts skipped checks into a failed overall status.
-- Config precedence is defaults, then `package.json.rindaman`, then `.rindamanrc.json`, then CLI flags.
+- Config precedence is defaults, then `package.json.pi-rindaman`, then `.pi-rindamanrc.json`, then CLI flags.
 
 Out of scope:
 
@@ -27,7 +27,7 @@ Out of scope:
 
 ## Architecture
 
-Tests remain in `test/cli.test.mjs` and invoke `bin/rindaman.cjs` through `node`, matching the existing test style.
+Tests remain in `test/cli.test.mjs` and invoke `bin/pi-rindaman.cjs` through `node`, matching the existing test style.
 
 Fixtures live under `test/fixtures/` and are intentionally small. Each fixture contains only the files required to exercise the behavior under test. Tests should avoid relying on globally installed formatters or package managers beyond Node and npm behavior already used by the repo.
 
@@ -63,7 +63,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

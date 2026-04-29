@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add baseline file generation and baseline-aware debt classification to Rindaman.
+**Goal:** Add baseline file generation and baseline-aware debt classification to pi-rindaman.
 
-**Architecture:** Keep implementation in `bin/rindaman.cjs` by reusing existing check orchestration, loading/writing a v1 baseline JSON file, and feeding baseline metadata into debt classification. Extend `test/cli.test.mjs` with temp fixture tests and document the command/config in `README.md`.
+**Architecture:** Keep implementation in `bin/pi-rindaman.cjs` by reusing existing check orchestration, loading/writing a v1 baseline JSON file, and feeding baseline metadata into debt classification. Extend `test/cli.test.mjs` with temp fixture tests and document the command/config in `README.md`.
 
 **Tech Stack:** Node.js CommonJS CLI, `node:test`, `node:assert/strict`, JSON files, local fixture tests.
 
@@ -12,7 +12,7 @@
 
 ## File Structure
 
-- Modify: `bin/rindaman.cjs` for command parsing, config defaults, baseline load/write helpers, JSON output, and help text.
+- Modify: `bin/pi-rindaman.cjs` for command parsing, config defaults, baseline load/write helpers, JSON output, and help text.
 - Modify: `test/cli.test.mjs` for baseline command and baseline classification tests.
 - Modify: `README.md` for baseline command, config, JSON output, and behavior docs.
 
@@ -37,17 +37,17 @@ Add after the formatter failure test:
 test("CLI baseline writes failed check names", () => {
   const baselinePath = resolve(
     tmpdir(),
-    "rindaman-baseline-command-fixture",
-    ".rindaman",
+    "pi-rindaman-baseline-command-fixture",
+    ".pi-rindaman",
     "baseline.json",
   );
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-baseline-command-fixture",
+    "pi-rindaman-baseline-command-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           syntax: false,
@@ -79,7 +79,7 @@ Expected: FAIL because `baseline` is not a known command.
 ## Task 2: Implement Baseline Command
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Add known command**
 
@@ -94,7 +94,7 @@ const KNOWN_COMMANDS = new Set(["check", "audit", "baseline", "doctor", "help"])
 In `createDefaultConfig()`, add:
 
 ```js
-    baselinePath: ".rindaman/baseline.json",
+    baselinePath: ".pi-rindaman/baseline.json",
     useBaseline: true,
 ```
 
@@ -170,9 +170,9 @@ function runBaselineCommand() {
   if (jsonOutput) {
     writeJsonResult(result);
   } else {
-    printSection("Rindaman Baseline");
-    console.log(`[Rindaman] Baseline: ${baseline.path}`);
-    console.log(`[Rindaman] Checks: ${baseline.checkNames.join(", ") || "none"}`);
+    printSection("pi-rindaman Baseline");
+    console.log(`[pi-rindaman] Baseline: ${baseline.path}`);
+    console.log(`[pi-rindaman] Checks: ${baseline.checkNames.join(", ") || "none"}`);
   }
 
   process.exit(EXIT_OK);
@@ -204,7 +204,7 @@ Expected: baseline command test passes or reveals small integration issues.
 ## Task 3: Add Baseline Metadata to Check Output
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Add missing baseline assertion**
@@ -285,7 +285,7 @@ Expected: pass.
 ## Task 4: Classify Existing Debt With Baseline
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Add baseline-aware classification test**
@@ -295,12 +295,12 @@ Add after baseline command test:
 ```js
 test("CLI check classifies baseline failures as existing", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-existing-baseline-fixture",
+    "pi-rindaman-existing-baseline-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           syntax: false,
@@ -309,9 +309,9 @@ test("CLI check classifies baseline failures as existing", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
-    resolve(fixtureDirectory, ".rindaman", "baseline.json"),
+    resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
     `${JSON.stringify({ version: 1, createdAt: "2026-04-26T00:00:00.000Z", checks: ["types"] }, null, 2)}\n`,
   );
 
@@ -379,7 +379,7 @@ Expected: baseline existing test passes.
 ## Task 5: Existing Debt Exit Policy and Baseline Flags
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Add fail-existing test**
@@ -389,12 +389,12 @@ Add after existing baseline test:
 ```js
 test("CLI check can fail existing baseline debt", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-fail-existing-baseline-fixture",
+    "pi-rindaman-fail-existing-baseline-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           syntax: false,
@@ -403,9 +403,9 @@ test("CLI check can fail existing baseline debt", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
-    resolve(fixtureDirectory, ".rindaman", "baseline.json"),
+    resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
     `${JSON.stringify({ version: 1, createdAt: "2026-04-26T00:00:00.000Z", checks: ["types"] }, null, 2)}\n`,
   );
 
@@ -429,12 +429,12 @@ Add after fail-existing test:
 ```js
 test("CLI check can ignore an existing baseline", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-no-baseline-fixture",
+    "pi-rindaman-no-baseline-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           syntax: false,
@@ -443,9 +443,9 @@ test("CLI check can ignore an existing baseline", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
-    resolve(fixtureDirectory, ".rindaman", "baseline.json"),
+    resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
     `${JSON.stringify({ version: 1, createdAt: "2026-04-26T00:00:00.000Z", checks: ["types"] }, null, 2)}\n`,
   );
 
@@ -470,9 +470,9 @@ Add after no-baseline test:
 ```js
 test("CLI check ignores invalid baseline JSON", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-invalid-baseline-fixture",
+    "pi-rindaman-invalid-baseline-fixture",
     {
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           types: false,
@@ -482,8 +482,8 @@ test("CLI check ignores invalid baseline JSON", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
-  writeFileSync(resolve(fixtureDirectory, ".rindaman", "baseline.json"), "not json\n");
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
+  writeFileSync(resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"), "not json\n");
 
   const result = runCli(["check", "--json"], fixtureDirectory);
 
@@ -563,7 +563,7 @@ Add after debt classification docs:
 ```md
 ### Baseline files
 
-Use `rindaman baseline --json` to record the current failed check names in `.rindaman/baseline.json`.
+Use `rindaman baseline --json` to record the current failed check names in `.pi-rindaman/baseline.json`.
 
 When baseline use is enabled, failed checks listed in the baseline are classified as existing debt. Existing debt does not block by default; pass `--fail-existing` to block it.
 ```
@@ -573,7 +573,7 @@ When baseline use is enabled, failed checks listed in the baseline are classifie
 Add:
 
 ```json
-  "baselinePath": ".rindaman/baseline.json",
+  "baselinePath": ".pi-rindaman/baseline.json",
   "useBaseline": true,
 ```
 
@@ -582,7 +582,7 @@ Add:
 Add:
 
 ```bash
-rindaman check --json --baseline-path .rindaman/baseline.json
+rindaman check --json --baseline-path .pi-rindaman/baseline.json
 rindaman check --json --no-baseline
 ```
 
@@ -605,7 +605,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

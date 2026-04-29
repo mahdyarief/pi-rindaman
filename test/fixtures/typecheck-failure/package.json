@@ -2,7 +2,7 @@
   "scripts": {
     "typecheck": "node -e \"process.exit(1)\""
   },
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "syntax": false,

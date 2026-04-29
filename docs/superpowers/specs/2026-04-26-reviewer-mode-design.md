@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman currently distinguishes core governance from senior implementation guidance. Review tasks still rely on core behavior plus implicit user instructions. A dedicated reviewer mode makes review behavior explicit, testable, and easier to control.
+pi-rindaman currently distinguishes core governance from senior implementation guidance. Review tasks still rely on core behavior plus implicit user instructions. A dedicated reviewer mode makes review behavior explicit, testable, and easier to control.
 
 ## Scope
 
@@ -15,7 +15,7 @@ Add a fourth plugin mode:
 
 Layer model:
 
-- core is always active when Rindaman is enabled
+- core is always active when pi-rindaman is enabled
 - secondary layer is mutually exclusive:
   - none
   - senior
@@ -23,10 +23,10 @@ Layer model:
 
 Chat overrides:
 
-- `/rindaman mode core`
-- `/rindaman mode senior`
-- `/rindaman mode reviewer`
-- `/rindaman mode auto`
+- `/pi-rindaman mode core`
+- `/pi-rindaman mode senior`
+- `/pi-rindaman mode reviewer`
+- `/pi-rindaman mode auto`
 
 Reviewer mode doctrine should emphasize:
 
@@ -91,7 +91,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

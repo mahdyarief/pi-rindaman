@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add an explicit reviewer mode to Rindaman with a mutually exclusive reviewer secondary layer.
+**Goal:** Add an explicit reviewer mode to pi-rindaman with a mutually exclusive reviewer secondary layer.
 
 **Architecture:** Keep core always active, keep secondary layers mutually exclusive, add a reviewer rule plus reviewer intent analysis, and extend mode resolution and status reporting without changing CLI behavior.
 
@@ -12,7 +12,7 @@
 
 ## File Structure
 
-- Modify: `src/rindaman-rule.ts` for a reviewer rule.
+- Modify: `src/pi-rindaman-rule.ts` for a reviewer rule.
 - Modify: `src/plugin/options.ts` for `reviewer` mode support.
 - Modify: `src/plugin/toggles.ts` for reviewer mode override commands.
 - Modify: `src/plugin/intent.ts` for reviewer intent analysis.
@@ -24,7 +24,7 @@
 ## Task 1: Add Reviewer Rule
 
 **Files:**
-- Modify: `src/rindaman-rule.ts`
+- Modify: `src/pi-rindaman-rule.ts`
 
 - [ ] **Step 1: Add reviewer marker**
 
@@ -70,13 +70,13 @@ Expected: compiles.
 Change:
 
 ```ts
-export type RindamanMode = "core" | "senior" | "auto"
+export type pi-rindamanMode = "core" | "senior" | "auto"
 ```
 
 to:
 
 ```ts
-export type RindamanMode = "core" | "senior" | "reviewer" | "auto"
+export type pi-rindamanMode = "core" | "senior" | "reviewer" | "auto"
 ```
 
 - [ ] **Step 2: Extend config mode parser**
@@ -85,10 +85,10 @@ In `getModeOption`, accept `reviewer` as a valid configured mode.
 
 - [ ] **Step 3: Add reviewer chat command override**
 
-In `src/plugin/toggles.ts`, update `getRindamanModeOverride` to recognize:
+In `src/plugin/toggles.ts`, update `getpi-rindamanModeOverride` to recognize:
 
 ```ts
-"/rindaman mode reviewer"
+"/pi-rindaman mode reviewer"
 "rindaman mode reviewer"
 ```
 
@@ -187,7 +187,7 @@ In message transform, inject exactly one secondary rule:
 
 - [ ] **Step 5: Status output includes secondary layer**
 
-In `rindaman_status`, add:
+In `pi_rindaman_status`, add:
 
 ```ts
 secondaryLayer: "none" | "senior" | "reviewer"
@@ -286,7 +286,7 @@ Add `reviewer` to the documented modes.
 Add:
 
 ```md
-- `/rindaman mode reviewer`
+- `/pi-rindaman mode reviewer`
 ```
 
 - [ ] **Step 3: Add status semantics note**
@@ -325,7 +325,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

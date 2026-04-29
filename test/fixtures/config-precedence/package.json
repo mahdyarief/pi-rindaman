@@ -1,8 +1,8 @@
 {
-  "rindaman": {
+  "pi-rindaman": {
     "changedOnly": false,
     "strictWarnings": false,
-    "reportPath": ".rindaman/from-package.md",
+    "reportPath": ".pi-rindaman/from-package.md",
     "ignorePatterns": ["package-ignore/**"],
     "checks": {
       "semantic": false,

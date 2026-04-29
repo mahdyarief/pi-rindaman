@@ -4,7 +4,7 @@ import { resolve } from "node:path"
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent"
 import { Type } from "@sinclair/typebox"
 
-type RindamanMode = "core" | "senior" | "reviewer" | "auto"
+type PiRindamanMode = "core" | "senior" | "reviewer" | "auto"
 type SecondaryLayer = "none" | "senior" | "reviewer"
 type CheckFreshness = "not_run" | "fresh" | "stale"
 
@@ -30,12 +30,12 @@ type FinalResponseGate = {
   reason: string
 }
 
-const RINDAMAN_STATE_ENTRY = "rindaman_state"
+const RINDAMAN_STATE_ENTRY = "pi_rindaman_state"
 
 const RINDAMAN_RULE = `
-rindaman lifecycle and strict response mode is enabled.
+pi-rindaman lifecycle and strict response mode is enabled.
 
-Rindaman combines strict response behavior with lifecycle code quality control.
+pi-rindaman combines strict response behavior with lifecycle code quality control.
 
 Strict response behavior:
 - Be concise and direct.
@@ -53,13 +53,13 @@ Code quality lifecycle:
 5. Before final response: report changed files, checks run, and remaining risks.
 
 Before completion:
-- Run rindaman from the project root when available and code changed.
+- Run pi-rindaman from the project root when available and code changed.
 - If unavailable, run equivalent project checks: typecheck, formatter or linter, and unused-code detection when configured.
-- If verification is required and no passing rindaman_check exists, explicitly state verification is pending or failed.
+- If verification is required and no passing pi_rindaman_check exists, explicitly state verification is pending or failed.
 `.trim()
 
 const RINDAMAN_SENIOR_RULE = `
-rindaman senior fullstack implementation mode is enabled.
+pi-rindaman senior fullstack implementation mode is enabled.
 
 This layer adds framework-agnostic web-product engineering doctrine.
 
@@ -72,7 +72,7 @@ This layer adds framework-agnostic web-product engineering doctrine.
 `.trim()
 
 const RINDAMAN_REVIEWER_RULE = `
-rindaman reviewer mode is enabled.
+pi-rindaman reviewer mode is enabled.
 
 Review doctrine:
 - Present findings first.
@@ -101,7 +101,7 @@ const cliPath = () => resolve(process.cwd(), "bin", "pi-rindaman.cjs")
 
 const sessionStates = new Map<string, SessionQualityState>()
 const sessionEnabledStates = new Map<string, boolean>()
-const sessionModeStates = new Map<string, RindamanMode>()
+const sessionModeStates = new Map<string, PiRindamanMode>()
 const sessionSecondaryLayerStates = new Map<string, SecondaryLayer>()
 const sessionSeniorEngineerMetadata = new Map<string, SeniorEngineerActivation>()
 
@@ -121,8 +121,8 @@ const normalizeCommandText = (text: string) =>
 
 const getToggle = (text: string) => {
   const onCommands = new Set([
-    "/rindaman on",
-    "rindaman on",
+    "/pi-rindaman on",
+    "pi-rindaman on",
     "/quality on",
     "quality on",
     "/strict on",
@@ -130,8 +130,8 @@ const getToggle = (text: string) => {
     "be strict",
   ])
   const offCommands = new Set([
-    "/rindaman off",
-    "rindaman off",
+    "/pi-rindaman off",
+    "pi-rindaman off",
     "/quality off",
     "quality off",
     "/strict off",
@@ -152,17 +152,17 @@ const getToggle = (text: string) => {
   return undefined
 }
 
-const getModeOverride = (text: string): RindamanMode | undefined => {
-  const values: RindamanMode[] = ["core", "senior", "reviewer", "auto"]
+const getModeOverride = (text: string): PiRindamanMode | undefined => {
+  const values: PiRindamanMode[] = ["core", "senior", "reviewer", "auto"]
   const full = normalizeCommandText(text)
   for (const value of values) {
-    if (full === `/rindaman mode ${value}` || full === `rindaman mode ${value}`) return value
+    if (full === `/pi-rindaman mode ${value}` || full === `pi-rindaman mode ${value}`) return value
   }
 
   const lines = text.split(/\r?\n/).map(normalizeCommandText).filter(Boolean)
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     for (const value of values) {
-      if (lines[i] === `/rindaman mode ${value}` || lines[i] === `rindaman mode ${value}`) {
+      if (lines[i] === `/pi-rindaman mode ${value}` || lines[i] === `pi-rindaman mode ${value}`) {
         return value
       }
     }
@@ -223,7 +223,7 @@ const analyzeActivation = (text: string): SeniorEngineerActivation => {
 const isVerificationRequired = (state: SessionQualityState) => state.changedFiles.length > 0
 
 const createFinalResponseGate = (state: SessionQualityState, enabled: boolean): FinalResponseGate => {
-  if (!enabled) return { allowed: true, reason: "rindaman disabled" }
+  if (!enabled) return { allowed: true, reason: "pi-rindaman disabled" }
   if (!isVerificationRequired(state)) return { allowed: true, reason: "verification not required" }
   if (state.lastCheckStatus === "passed") return { allowed: true, reason: "verification passed" }
   if (state.lastCheckStatus === "failed") return { allowed: false, reason: "verification failed" }
@@ -243,21 +243,21 @@ const getNextAction = (
 ) => {
   if (checkFreshness === "not_run") {
     return {
-      command: "rindaman_check",
+      command: "pi_rindaman_check",
       reason: "verification has not been run for this session",
     }
   }
 
   if (verificationRequired && checkFreshness === "stale") {
     return {
-      command: "rindaman_check",
+      command: "pi_rindaman_check",
       reason: "files changed after the last verification",
     }
   }
 
   if (!finalResponse.allowed) {
     return {
-      command: "rindaman_check",
+      command: "pi_rindaman_check",
       reason: finalResponse.reason,
     }
   }
@@ -302,7 +302,7 @@ const restoreState = (ctx: ExtensionContext) => {
       sessionId?: string
       quality?: SessionQualityState
       enabled?: boolean
-      mode?: RindamanMode
+      mode?: PiRindamanMode
       secondaryLayer?: SecondaryLayer
       seniorEngineer?: SeniorEngineerActivation
     }
@@ -319,7 +319,7 @@ const restoreState = (ctx: ExtensionContext) => {
 
 const getSessionId = (ctx: ExtensionContext) => ctx.sessionManager.getSessionFile() ?? "default"
 
-export default function rindaman(pi: ExtensionAPI) {
+export default function piRindaman(pi: ExtensionAPI) {
   pi.on("session_start", async (_event, ctx) => {
     restoreState(ctx)
   })
@@ -333,14 +333,14 @@ export default function rindaman(pi: ExtensionAPI) {
     if (typeof toggle === "boolean") {
       sessionEnabledStates.set(sessionId, toggle)
       persistState(pi, sessionId)
-      if (ctx.hasUI) ctx.ui.notify(`Rindaman ${toggle ? "enabled" : "disabled"}.`, "info")
+      if (ctx.hasUI) ctx.ui.notify(`pi-rindaman ${toggle ? "enabled" : "disabled"}.`, "info")
       return { action: "handled" }
     }
 
     if (mode) {
       sessionModeStates.set(sessionId, mode)
       persistState(pi, sessionId)
-      if (ctx.hasUI) ctx.ui.notify(`Rindaman mode: ${mode}.`, "info")
+      if (ctx.hasUI) ctx.ui.notify(`pi-rindaman mode: ${mode}.`, "info")
       return { action: "handled" }
     }
 
@@ -410,7 +410,7 @@ export default function rindaman(pi: ExtensionAPI) {
         if (!finalResponse.allowed) {
           return {
             block: true,
-            reason: `Rindaman: ${finalResponse.reason}. Run rindaman_check first.`,
+            reason: `pi-rindaman: ${finalResponse.reason}. Run pi_rindaman_check first.`,
           }
         }
       }
@@ -430,8 +430,8 @@ export default function rindaman(pi: ExtensionAPI) {
     return undefined
   })
 
-  pi.registerCommand("rindaman", {
-    description: "Toggle Rindaman or change mode: on|off|mode <core|senior|reviewer|auto>",
+  pi.registerCommand("pi-rindaman", {
+    description: "Toggle pi-rindaman or change mode: on|off|mode <core|senior|reviewer|auto>",
     handler: async (args, ctx) => {
       const sessionId = getSessionId(ctx)
       const trimmed = args.trim().toLowerCase()
@@ -439,38 +439,38 @@ export default function rindaman(pi: ExtensionAPI) {
       if (trimmed === "on") {
         sessionEnabledStates.set(sessionId, true)
         persistState(pi, sessionId)
-        ctx.ui.notify("Rindaman enabled.", "info")
+        ctx.ui.notify("pi-rindaman enabled.", "info")
         return
       }
       if (trimmed === "off") {
         sessionEnabledStates.set(sessionId, false)
         persistState(pi, sessionId)
-        ctx.ui.notify("Rindaman disabled.", "info")
+        ctx.ui.notify("pi-rindaman disabled.", "info")
         return
       }
       if (trimmed.startsWith("mode ")) {
-        const mode = trimmed.slice(5) as RindamanMode
+        const mode = trimmed.slice(5) as PiRindamanMode
         if (["core", "senior", "reviewer", "auto"].includes(mode)) {
           sessionModeStates.set(sessionId, mode)
           persistState(pi, sessionId)
-          ctx.ui.notify(`Rindaman mode: ${mode}.`, "info")
+          ctx.ui.notify(`pi-rindaman mode: ${mode}.`, "info")
           return
         }
       }
 
-      ctx.ui.notify("Usage: /rindaman on|off|mode <core|senior|reviewer|auto>", "error")
+      ctx.ui.notify("Usage: /pi-rindaman on|off|mode <core|senior|reviewer|auto>", "error")
     },
   })
 
   pi.registerCommand("quality", {
-    description: "Alias for /rindaman on|off",
+    description: "Alias for /pi-rindaman on|off",
     handler: async (args, ctx) => {
       const value = args.trim().toLowerCase()
       const sessionId = getSessionId(ctx)
       if (value === "on" || value === "off") {
         sessionEnabledStates.set(sessionId, value === "on")
         persistState(pi, sessionId)
-        ctx.ui.notify(`Rindaman ${value === "on" ? "enabled" : "disabled"}.`, "info")
+        ctx.ui.notify(`pi-rindaman ${value === "on" ? "enabled" : "disabled"}.`, "info")
         return
       }
       ctx.ui.notify("Usage: /quality on|off", "error")
@@ -478,7 +478,7 @@ export default function rindaman(pi: ExtensionAPI) {
   })
 
   pi.registerCommand("strict", {
-    description: "Alias for /rindaman on|off",
+    description: "Alias for /pi-rindaman on|off",
     handler: async (args, ctx) => {
       const value = args.trim().toLowerCase()
       const sessionId = getSessionId(ctx)
@@ -493,9 +493,9 @@ export default function rindaman(pi: ExtensionAPI) {
   })
 
   pi.registerTool({
-    name: "rindaman_check",
-    label: "Rindaman Check",
-    description: "Run Rindaman quality verification from the current project directory and record session check status.",
+    name: "pi_rindaman_check",
+    label: "pi-rindaman Check",
+    description: "Run pi-rindaman quality verification from the current project directory and record session check status.",
     parameters: Type.Object({
       mode: Type.Optional(Type.Union([
         Type.Literal("check"),
@@ -543,7 +543,7 @@ export default function rindaman(pi: ExtensionAPI) {
               result.stdout,
               result.stderr,
               "",
-              `Rindaman status: ${state.lastCheckStatus}`,
+              `pi-rindaman status: ${state.lastCheckStatus}`,
               `Exit code: ${String(result.status)}`,
               `Final response allowed: ${String(finalResponse.allowed)}`,
               `Final response reason: ${finalResponse.reason}`,
@@ -566,9 +566,9 @@ export default function rindaman(pi: ExtensionAPI) {
   })
 
   pi.registerTool({
-    name: "rindaman_status",
-    label: "Rindaman Status",
-    description: "Report Rindaman session state, changed files, and the last quality check result.",
+    name: "pi_rindaman_status",
+    label: "pi-rindaman Status",
+    description: "Report pi-rindaman session state, changed files, and the last quality check result.",
     parameters: Type.Object({}),
     async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
       const sessionId = getSessionId(ctx)

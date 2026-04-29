@@ -4,7 +4,7 @@
 
 **Goal:** Add workspace-aware check and baseline execution for simple npm/pnpm monorepos.
 
-**Architecture:** Keep v1 in `bin/rindaman.cjs`, adding helpers for workspace discovery, selection, config merging, and aggregate results. Extend CLI fixture tests with a small monorepo fixture and document the new flags.
+**Architecture:** Keep v1 in `bin/pi-rindaman.cjs`, adding helpers for workspace discovery, selection, config merging, and aggregate results. Extend CLI fixture tests with a small monorepo fixture and document the new flags.
 
 **Tech Stack:** Node.js CommonJS CLI, `node:test`, JSON fixture tests, npm/pnpm workspace metadata.
 
@@ -12,12 +12,12 @@
 
 ## File Structure
 
-- Modify: `bin/rindaman.cjs` for workspace flags, discovery, config merging, command dispatch, and aggregate JSON output.
+- Modify: `bin/pi-rindaman.cjs` for workspace flags, discovery, config merging, command dispatch, and aggregate JSON output.
 - Modify: `test/cli.test.mjs` for workspace selection, aggregation, config, baseline, and error tests.
 - Create: `test/fixtures/monorepo-project/package.json` as the monorepo root.
 - Create: `test/fixtures/monorepo-project/apps/web/package.json` as one workspace.
 - Create: `test/fixtures/monorepo-project/packages/api/package.json` as another workspace.
-- Create: `test/fixtures/monorepo-project/packages/api/.rindamanrc.json` for workspace config override.
+- Create: `test/fixtures/monorepo-project/packages/api/.pi-rindamanrc.json` for workspace config override.
 - Modify: `README.md` for workspace flags and JSON output.
 
 ## Task 1: Add Monorepo Fixture and Missing Workspace Test
@@ -27,7 +27,7 @@
 - Create: `test/fixtures/monorepo-project/package.json`
 - Create: `test/fixtures/monorepo-project/apps/web/package.json`
 - Create: `test/fixtures/monorepo-project/packages/api/package.json`
-- Create: `test/fixtures/monorepo-project/packages/api/.rindamanrc.json`
+- Create: `test/fixtures/monorepo-project/packages/api/.pi-rindamanrc.json`
 
 - [ ] **Step 1: Create monorepo root fixture**
 
@@ -37,7 +37,7 @@
 {
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "types": false,
@@ -54,9 +54,9 @@
 
 ```json
 {
-  "name": "@rindaman/web",
+  "name": "@pi-rindaman/web",
   "private": true,
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "types": false,
@@ -73,12 +73,12 @@
 
 ```json
 {
-  "name": "@rindaman/api",
+  "name": "@pi-rindaman/api",
   "private": true,
   "scripts": {
     "typecheck": "node -e \"process.exit(1)\""
   },
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "syntax": false,
@@ -90,7 +90,7 @@
 
 - [ ] **Step 4: Create API workspace config override**
 
-`test/fixtures/monorepo-project/packages/api/.rindamanrc.json`:
+`test/fixtures/monorepo-project/packages/api/.pi-rindamanrc.json`:
 
 ```json
 {
@@ -138,7 +138,7 @@ Expected: FAIL because `--workspace` is not implemented.
 ## Task 2: Implement Workspace Discovery and Selection
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Include workspace flags in value flags**
 
@@ -288,7 +288,7 @@ Expected: missing workspace test passes after dispatch integration in Task 3.
 ## Task 3: Run Check For One Workspace
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Add config composition helper**
@@ -299,8 +299,8 @@ Add after `readConfig`:
 function readWorkspaceConfig(projectRoot, workspaceRoot) {
   const rootConfig = readConfig(projectRoot);
   const workspacePackageJson = readJsonFile(path.join(workspaceRoot, "package.json")) ?? {};
-  const workspacePackageConfig = workspacePackageJson.rindaman ?? {};
-  const workspaceFileConfig = readJsonFile(path.join(workspaceRoot, ".rindamanrc.json")) ?? {};
+  const workspacePackageConfig = workspacePackageJson["pi-rindaman"] ?? {};
+  const workspaceFileConfig = readJsonFile(path.join(workspaceRoot, ".pi-rindamanrc.json")) ?? {};
 
   return {
     ...rootConfig,
@@ -309,7 +309,7 @@ function readWorkspaceConfig(projectRoot, workspaceRoot) {
     baselinePath:
       workspaceFileConfig.baselinePath ??
       workspacePackageConfig.baselinePath ??
-      ".rindaman/baseline.json",
+      ".pi-rindaman/baseline.json",
     checks: {
       ...rootConfig.checks,
       ...(workspacePackageConfig.checks ?? {}),
@@ -368,7 +368,7 @@ test("CLI check can target a workspace by path", () => {
   assert.equal(result.status, 1);
   const output = parseJsonOutput(result);
 
-  assert.equal(output.workspace.name, "@rindaman/api");
+  assert.equal(output.workspace.name, "@pi-rindaman/api");
   assert.equal(output.workspace.path, "packages/api");
   assert.equal(output.debt.mode, "all");
 });
@@ -379,14 +379,14 @@ test("CLI check can target a workspace by path", () => {
 ```js
 test("CLI check can target a workspace by package name", () => {
   const result = runCli(
-    ["check", "--json", "--workspace", "@rindaman/web"],
+    ["check", "--json", "--workspace", "@pi-rindaman/web"],
     monorepoFixtureDirectory,
   );
 
   assert.equal(result.status, 0);
   const output = parseJsonOutput(result);
 
-  assert.equal(output.workspace.name, "@rindaman/web");
+  assert.equal(output.workspace.name, "@pi-rindaman/web");
   assert.equal(output.workspace.path, "apps/web");
 });
 ```
@@ -400,7 +400,7 @@ Expected: single workspace tests pass.
 ## Task 4: Run Check For All Workspaces
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Add aggregate status helper**
@@ -489,7 +489,7 @@ Expected: all workspace aggregation passes.
 ## Task 5: Workspace Baseline Command
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Update baseline command for workspace target**
@@ -557,7 +557,7 @@ Add after baseline docs:
 
 Use `--workspace <name-or-path>` to run against one workspace, or `--workspaces` to run every detected workspace.
 
-Rindaman detects workspaces from root `package.json` workspaces and `pnpm-workspace.yaml`. Workspace runs use workspace-local scripts, config, and baselines, with root config as the fallback.
+pi-rindaman detects workspaces from root `package.json` workspaces and `pnpm-workspace.yaml`. Workspace runs use workspace-local scripts, config, and baselines, with root config as the fallback.
 ```
 
 - [ ] **Step 3: Run targeted tests**
@@ -585,7 +585,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

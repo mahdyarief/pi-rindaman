@@ -17,9 +17,9 @@ class Runner {
   }
 
   finish() {
-    const configuredReportPath = process.env.RINDAMAN_REPORT_PATH;
-    const reportPath = configuredReportPath ? path.resolve(process.cwd(), configuredReportPath) : path.join(process.cwd(), ".rindaman", "report.md");
-    if (process.env.RINDAMAN_WRITE_REPORT !== "0") {
+    const configuredReportPath = process.env.PI_RINDAMAN_REPORT_PATH;
+    const reportPath = configuredReportPath ? path.resolve(process.cwd(), configuredReportPath) : path.join(process.cwd(), ".pi-rindaman", "report.md");
+    if (process.env.PI_RINDAMAN_WRITE_REPORT !== "0") {
       require("fs").mkdirSync(path.dirname(reportPath), { recursive: true });
       this.reporter.generateMarkdown(reportPath);
     }

@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make `rindaman_check` and `rindaman_status` feel like an operator console by adding freshness and next-action guidance.
+**Goal:** Make `pi_rindaman_check` and `pi_rindaman_status` feel like an operator console by adding freshness and next-action guidance.
 
-**Architecture:** Keep the existing plugin tools and session state, but add small freshness and next-action evaluators. Surface the results through `rindaman_status` and the human-readable output from `rindaman_check`.
+**Architecture:** Keep the existing plugin tools and session state, but add small freshness and next-action evaluators. Surface the results through `pi_rindaman_status` and the human-readable output from `pi_rindaman_check`.
 
 **Tech Stack:** TypeScript OpenCode plugin, modular plugin helpers, `node:test` plugin integration tests.
 
@@ -40,7 +40,7 @@ Add to `SessionQualityState`:
 
 - [ ] **Step 2: Track freshness invalidation**
 
-When a successful or failed check runs in `createRindamanCheckTool`, set:
+When a successful or failed check runs in `createpi-rindamanCheckTool`, set:
 
 ```ts
       sessionState.dirtySinceCheck = false
@@ -68,7 +68,7 @@ const getCheckFreshness = (sessionState: SessionQualityState): CheckFreshness =>
 
 - [ ] **Step 4: Add status field**
 
-In `createRindamanStatusTool`, include:
+In `createpi-rindamanStatusTool`, include:
 
 ```ts
           checkFreshness,
@@ -115,21 +115,21 @@ const getNextAction = (
 ): NextAction => {
   if (verificationRequired && checkFreshness === "not_run") {
     return {
-      command: "rindaman_check",
+      command: "pi_rindaman_check",
       reason: "verification has not been run for this session",
     }
   }
 
   if (verificationRequired && checkFreshness === "stale") {
     return {
-      command: "rindaman_check",
+      command: "pi_rindaman_check",
       reason: "files changed after the last verification",
     }
   }
 
   if (!finalResponse.allowed) {
     return {
-      command: "rindaman_check",
+      command: "pi_rindaman_check",
       reason: finalResponse.reason,
     }
   }
@@ -143,7 +143,7 @@ const getNextAction = (
 
 - [ ] **Step 3: Include nextAction in status**
 
-In `createRindamanStatusTool`, compute:
+In `createpi-rindamanStatusTool`, compute:
 
 ```ts
       const nextAction = getNextAction(
@@ -161,7 +161,7 @@ Then include:
 
 - [ ] **Step 4: Extend check output**
 
-In `createRindamanCheckTool`, after final-response lines, append:
+In `createpi-rindamanCheckTool`, after final-response lines, append:
 
 ```ts
         "Next action: " + (nextAction.command ?? "none"),
@@ -201,7 +201,7 @@ test("passing check reports fresh status", async () => {
   const hooks = await server()
   const context = createToolContext()
 
-  await hooks.tool.rindaman_check.execute(
+  await hooks.tool.pi_rindaman_check.execute(
     { mode: "doctor", json: true, strict: false, report: false },
     context,
   )
@@ -218,7 +218,7 @@ test("edit after check reports stale status and next action", async () => {
   const hooks = await server()
   const context = createToolContext()
 
-  await hooks.tool.rindaman_check.execute(
+  await hooks.tool.pi_rindaman_check.execute(
     { mode: "doctor", json: true, strict: false, report: false },
     context,
   )
@@ -230,7 +230,7 @@ test("edit after check reports stale status and next action", async () => {
   const status = await readStatus(hooks, context)
 
   assert.equal(status.checkFreshness, "stale")
-  assert.equal(status.nextAction.command, "rindaman_check")
+  assert.equal(status.nextAction.command, "pi_rindaman_check")
 })
 ```
 
@@ -247,7 +247,7 @@ Expected: operator semantics tests pass.
 
 - [ ] **Step 1: Add status fields**
 
-Extend the `rindaman_status` section with:
+Extend the `pi_rindaman_status` section with:
 
 ```md
 - `checkFreshness`
@@ -260,7 +260,7 @@ Extend the `rindaman_status` section with:
 Add a short note:
 
 ```md
-`rindaman_status` is intended to answer both “what state is the session in?” and “what should I do next?”
+`pi_rindaman_status` is intended to answer both “what state is the session in?” and “what should I do next?”
 ```
 
 - [ ] **Step 3: Run full tests**
@@ -288,7 +288,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

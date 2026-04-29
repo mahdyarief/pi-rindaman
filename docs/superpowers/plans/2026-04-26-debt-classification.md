@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add CLI-level debt classification so Rindaman reports introduced, existing, and unknown failures without persistent baselines.
+**Goal:** Add CLI-level debt classification so pi-rindaman reports introduced, existing, and unknown failures without persistent baselines.
 
-**Architecture:** Implement a small classifier inside `bin/rindaman.cjs` after check execution and before status calculation. Extend fixture-backed CLI tests in `test/cli.test.mjs`; avoid semantic engine rewrites.
+**Architecture:** Implement a small classifier inside `bin/pi-rindaman.cjs` after check execution and before status calculation. Extend fixture-backed CLI tests in `test/cli.test.mjs`; avoid semantic engine rewrites.
 
 **Tech Stack:** Node.js CommonJS CLI, `node:test`, `node:assert/strict`, `spawnSync`, JSON CLI contracts.
 
@@ -12,10 +12,10 @@
 
 ## File Structure
 
-- Modify: `bin/rindaman.cjs` for config defaults, flag parsing, debt classification, status policy, JSON output, and help text.
+- Modify: `bin/pi-rindaman.cjs` for config defaults, flag parsing, debt classification, status policy, JSON output, and help text.
 - Modify: `test/cli.test.mjs` for JSON shape, classification, audit, config precedence, and invalid flag tests.
 - Create: `test/fixtures/debt-config/package.json` for package-level debt config.
-- Create: `test/fixtures/debt-config/.rindamanrc.json` for file-level debt config override.
+- Create: `test/fixtures/debt-config/.pi-rindamanrc.json` for file-level debt config override.
 - Modify: `README.md` to document the `debt` JSON section and new flags/config keys.
 
 ## Task 1: Add Debt JSON Shape Regression
@@ -48,7 +48,7 @@ Expected: FAIL with an assertion showing `output.debt` is `undefined`.
 ## Task 2: Implement Debt Config Defaults and JSON Shape
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Extend default config**
 
@@ -216,12 +216,12 @@ Replace the fixture directory in `CLI check reports typecheck script failures` w
 
 ```js
   const fixtureDirectory = writeTemporaryChangedFileFixture(
-    "rindaman-typecheck-introduced-fixture",
+    "pi-rindaman-typecheck-introduced-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      ["pi-rindaman"]: {
         checks: {
           semantic: false,
           syntax: false,
@@ -246,7 +246,7 @@ Expected: introduced and unknown classification tests pass.
 
 **Files:**
 - Create: `test/fixtures/debt-config/package.json`
-- Create: `test/fixtures/debt-config/.rindamanrc.json`
+- Create: `test/fixtures/debt-config/.pi-rindamanrc.json`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Create debt config package fixture**
@@ -255,7 +255,7 @@ Expected: introduced and unknown classification tests pass.
 
 ```json
 {
-  "rindaman": {
+  "pi-rindaman": {
     "debtMode": "all",
     "failOnExistingDebt": false,
     "checks": {
@@ -270,7 +270,7 @@ Expected: introduced and unknown classification tests pass.
 
 - [ ] **Step 2: Create debt config file override**
 
-`test/fixtures/debt-config/.rindamanrc.json`:
+`test/fixtures/debt-config/.pi-rindamanrc.json`:
 
 ```json
 {
@@ -319,7 +319,7 @@ Expected: pass after policy output includes `failOnExistingDebt`.
 ## Task 6: Implement Policy Output and Invalid Flag Handling
 
 **Files:**
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 - Modify: `test/cli.test.mjs`
 
 - [ ] **Step 1: Add failOnExistingDebt to policy output**
@@ -376,7 +376,7 @@ After the JSON output section, add:
 ```md
 ### Debt classification
 
-Rindaman reports failed checks in a `debt` object:
+pi-rindaman reports failed checks in a `debt` object:
 
 - `introducedChecks` — failures tied to changed target files
 - `existingChecks` — reserved for baseline-aware classification
@@ -422,7 +422,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

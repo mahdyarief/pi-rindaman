@@ -445,8 +445,8 @@ function runSemanticCheck(projectRoot, targetFiles, config, inherit) {
     cwd: projectRoot,
     inherit,
     env: {
-      RINDAMAN_WRITE_REPORT: config.writeReport ? "1" : "0",
-      RINDAMAN_REPORT_PATH: config.reportPath,
+      PI_RINDAMAN_WRITE_REPORT: config.writeReport ? "1" : "0",
+      PI_RINDAMAN_REPORT_PATH: config.reportPath,
     },
   });
 

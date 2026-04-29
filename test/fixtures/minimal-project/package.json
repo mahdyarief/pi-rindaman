@@ -1,8 +1,8 @@
 {
-  "name": "rindaman-minimal-fixture",
+  "name": "pi-rindaman-minimal-fixture",
   "version": "1.0.0",
   "private": true,
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "types": false,

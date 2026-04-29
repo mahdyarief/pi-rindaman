@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman should be adoptable in imperfect projects. A production quality gate must block newly introduced problems without forcing teams to fix all historical debt on day one.
+pi-rindaman should be adoptable in imperfect projects. A production quality gate must block newly introduced problems without forcing teams to fix all historical debt on day one.
 
 This increment adds CLI-level introduced-vs-existing debt classification while keeping the semantic engine stable.
 
@@ -52,7 +52,7 @@ Out of scope:
 
 ## Architecture
 
-Implement classification in `bin/rindaman.cjs` after checks are collected and before the final status and exit code are decided.
+Implement classification in `bin/pi-rindaman.cjs` after checks are collected and before the final status and exit code are decided.
 
 The classifier should be a small pure function that receives:
 
@@ -78,7 +78,7 @@ Invalid `--debt-mode` values should be treated as runtime input errors with exit
 
 Missing config keys should fall back to defaults.
 
-Classification must never hide a failed check. If Rindaman cannot classify a failure, it must mark it as `unknown`.
+Classification must never hide a failed check. If pi-rindaman cannot classify a failure, it must mark it as `unknown`.
 
 ## Testing Strategy
 
@@ -96,7 +96,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

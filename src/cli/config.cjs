@@ -14,12 +14,12 @@ function createDefaultConfig() {
     changedOnly: true,
     strictWarnings: false,
     writeReport: false,
-    reportPath: ".rindaman/report.md",
+    reportPath: ".pi-rindaman/report.md",
     allowPackageInstall: false,
     baseRef: undefined,
     debtMode: "changed-only",
     failOnExistingDebt: false,
-    baselinePath: ".rindaman/baseline.json",
+    baselinePath: ".pi-rindaman/baseline.json",
     useBaseline: true,
     security: {
       failOnModerate: false,
@@ -39,9 +39,9 @@ function createDefaultConfig() {
 
 function readConfig(projectRoot) {
   const packageJson = readJsonFile(path.join(projectRoot, "package.json")) ?? {};
-  const packageConfig = packageJson.rindaman ?? {};
+  const packageConfig = packageJson["pi-rindaman"] ?? {};
   const fileConfig =
-    readJsonFile(path.join(projectRoot, ".rindamanrc.json")) ?? {};
+    readJsonFile(path.join(projectRoot, ".pi-rindamanrc.json")) ?? {};
   const defaultConfig = createDefaultConfig();
 
   return {
@@ -69,9 +69,9 @@ function readWorkspaceConfig(projectRoot, workspaceRoot) {
   const rootConfig = readConfig(projectRoot);
   const workspacePackageJson =
     readJsonFile(path.join(workspaceRoot, "package.json")) ?? {};
-  const workspacePackageConfig = workspacePackageJson.rindaman ?? {};
+  const workspacePackageConfig = workspacePackageJson["pi-rindaman"] ?? {};
   const workspaceFileConfig =
-    readJsonFile(path.join(workspaceRoot, ".rindamanrc.json")) ?? {};
+    readJsonFile(path.join(workspaceRoot, ".pi-rindamanrc.json")) ?? {};
 
   return {
     ...rootConfig,
@@ -80,7 +80,7 @@ function readWorkspaceConfig(projectRoot, workspaceRoot) {
     baselinePath:
       workspaceFileConfig.baselinePath ??
       workspacePackageConfig.baselinePath ??
-      ".rindaman/baseline.json",
+      ".pi-rindaman/baseline.json",
     checks: {
       ...rootConfig.checks,
       ...(workspacePackageConfig.checks ?? {}),

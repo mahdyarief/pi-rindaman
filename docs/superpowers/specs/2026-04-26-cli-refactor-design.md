@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman's CLI now handles command parsing, config loading, workspace targeting, baseline files, debt classification, and result assembly in one large file. The next production-grade improvement is a behavior-preserving refactor that reduces change risk for future features.
+pi-rindaman's CLI now handles command parsing, config loading, workspace targeting, baseline files, debt classification, and result assembly in one large file. The next production-grade improvement is a behavior-preserving refactor that reduces change risk for future features.
 
 ## Scope
 
@@ -16,7 +16,7 @@ Preserve:
 - current baseline and monorepo behavior
 - current tests
 
-Extract these responsibilities from `bin/rindaman.cjs`:
+Extract these responsibilities from `bin/pi-rindaman.cjs`:
 
 - argument and flag parsing
 - config loading and overrides
@@ -25,7 +25,7 @@ Extract these responsibilities from `bin/rindaman.cjs`:
 - debt classification and status policy
 - check result creation and command routing helpers
 
-Keep `bin/rindaman.cjs` as a thin entrypoint that wires modules together.
+Keep `bin/pi-rindaman.cjs` as a thin entrypoint that wires modules together.
 
 Out of scope:
 
@@ -48,7 +48,7 @@ Recommended module split:
 - `src/cli/policy.cjs` - debt classification, aggregate status, exit policy
 - `src/cli/check-runner.cjs` - check execution and result assembly
 
-`bin/rindaman.cjs` remains the only executable file and imports these helpers.
+`bin/pi-rindaman.cjs` remains the only executable file and imports these helpers.
 
 ## Data Flow
 
@@ -77,12 +77,12 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria
 
-- `bin/rindaman.cjs` becomes a thin entrypoint.
+- `bin/pi-rindaman.cjs` becomes a thin entrypoint.
 - Extracted modules have one clear responsibility each.
 - All existing tests pass unchanged or with minimal assertion updates.
 - No public CLI behavior regresses.

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman can now classify failures as introduced or unknown, but it cannot yet identify known existing debt. Baseline files make Rindaman practical for legacy projects by allowing teams to record current failures and block only new debt.
+pi-rindaman can now classify failures as introduced or unknown, but it cannot yet identify known existing debt. Baseline files make pi-rindaman practical for legacy projects by allowing teams to record current failures and block only new debt.
 
 ## Scope
 
@@ -13,7 +13,7 @@ Add a baseline command:
 
 Add config keys:
 
-- `baselinePath`: default `.rindaman/baseline.json`
+- `baselinePath`: default `.pi-rindaman/baseline.json`
 - `useBaseline`: default `true`
 
 Add CLI flags:
@@ -26,7 +26,7 @@ Extend JSON output with:
 ```json
 {
   "baseline": {
-    "path": "/absolute/path/to/.rindaman/baseline.json",
+    "path": "/absolute/path/to/.pi-rindaman/baseline.json",
     "found": true,
     "used": true,
     "checkNames": ["types", "syntax"]
@@ -64,7 +64,7 @@ Out of scope:
 
 ## Architecture
 
-Implement baseline support in `bin/rindaman.cjs` at the CLI orchestration layer.
+Implement baseline support in `bin/pi-rindaman.cjs` at the CLI orchestration layer.
 
 The baseline command should reuse existing check execution logic in audit mode, collect failed check names, write the baseline file, and return structured JSON when requested.
 
@@ -111,7 +111,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

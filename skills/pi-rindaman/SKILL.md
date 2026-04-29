@@ -1,11 +1,11 @@
 ---
-name: rindaman
-description: Strict response discipline plus lifecycle verification guidance for implementation, review, and completion. Use when you want Rindaman's Pi workflow, commands, and quality tools in a session.
+name: pi-rindaman
+description: Strict response discipline plus lifecycle verification guidance for implementation, review, and completion. Use when you want pi-rindaman's Pi workflow, commands, and quality tools in a session.
 ---
 
-# Rindaman
+# pi-rindaman
 
-Rindaman is a Pi skill and extension package for code-quality governance.
+pi-rindaman is a Pi skill and extension package for code-quality governance.
 
 It combines:
 - strict, concise response discipline
@@ -16,16 +16,16 @@ It combines:
 ## What the extension provides
 
 When the package is installed, the bundled Pi extension adds:
-- `/rindaman on`
-- `/rindaman off`
-- `/rindaman mode core`
-- `/rindaman mode senior`
-- `/rindaman mode reviewer`
-- `/rindaman mode auto`
+- `/pi-rindaman on`
+- `/pi-rindaman off`
+- `/pi-rindaman mode core`
+- `/pi-rindaman mode senior`
+- `/pi-rindaman mode reviewer`
+- `/pi-rindaman mode auto`
 - `/quality on` / `/quality off`
 - `/strict on` / `/strict off`
-- `rindaman_check`
-- `rindaman_status`
+- `pi_rindaman_check`
+- `pi_rindaman_status`
 
 ## Modes
 
@@ -43,21 +43,21 @@ In `auto` mode:
 
 Before claiming completion after code changes:
 
-1. Run `rindaman_status`
-2. If verification is needed, run `rindaman_check`
+1. Run `pi_rindaman_status`
+2. If verification is needed, run `pi_rindaman_check`
 3. Only claim completion when status shows final response is allowed
 
 Typical flow:
 
 ```text
-rindaman_status
-rindaman_check
-rindaman_status
+pi_rindaman_status
+pi_rindaman_check
+pi_rindaman_status
 ```
 
 ## Final response contract
 
-When Rindaman is active, final responses should include:
+When pi-rindaman is active, final responses should include:
 - changed files
 - verification commands run
 - results
@@ -76,11 +76,6 @@ pi-rindaman audit --json
 pi-rindaman doctor --json
 ```
 
-Legacy alias also works:
-
-```bash
-rindaman
-```
 
 ## Package install
 

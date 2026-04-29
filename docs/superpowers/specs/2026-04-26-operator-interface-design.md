@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Rindaman already exposes useful plugin tools, but `rindaman_check` and `rindaman_status` still behave more like raw state reporters than a true operator interface. The next increment should make them answer the practical question: what is the current state, and what should the operator do next?
+pi-rindaman already exposes useful plugin tools, but `pi_rindaman_check` and `pi_rindaman_status` still behave more like raw state reporters than a true operator interface. The next increment should make them answer the practical question: what is the current state, and what should the operator do next?
 
 ## Scope
 
 Improve plugin tool ergonomics only.
 
-Add to `rindaman_status`:
+Add to `pi_rindaman_status`:
 
 - `checkFreshness`: `not_run` | `fresh` | `stale`
 - `nextAction.command`
@@ -22,10 +22,10 @@ Behavior:
 
 `nextAction` should guide the operator:
 
-- recommend `rindaman_check` when verification is required and stale or not run
+- recommend `pi_rindaman_check` when verification is required and stale or not run
 - recommend no action when final response is allowed and the state is fresh
 
-`rindaman_check` should include a short operator summary in its output:
+`pi_rindaman_check` should include a short operator summary in its output:
 
 - last status
 - final response allowed
@@ -64,7 +64,7 @@ These can live alongside final-response gate logic or in a new plugin helper mod
 If state is incomplete, prefer safe defaults:
 
 - freshness -> `not_run`
-- next action -> recommend `rindaman_check` when uncertain and verification is required
+- next action -> recommend `pi_rindaman_check` when uncertain and verification is required
 
 Do not emit contradictory states such as `fresh` with `not_run`.
 
@@ -77,14 +77,14 @@ Add coverage for:
 - untouched session -> `not_run`
 - passing check -> `fresh`
 - edit after check -> `stale`
-- `nextAction` recommends `rindaman_check` when stale and verification required
+- `nextAction` recommends `pi_rindaman_check` when stale and verification required
 - `nextAction` is null or inactive when fresh and final response allowed
 
 Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

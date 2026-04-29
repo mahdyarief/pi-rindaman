@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman already checks code quality, debt classification, baselines, monorepo targeting, and plugin enforcement. The next production-grade increment is dependency security visibility, so teams can treat vulnerable dependency state as part of their quality gate.
+pi-rindaman already checks code quality, debt classification, baselines, monorepo targeting, and plugin enforcement. The next production-grade increment is dependency security visibility, so teams can treat vulnerable dependency state as part of their quality gate.
 
 ## Scope
 
@@ -112,7 +112,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

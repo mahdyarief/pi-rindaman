@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman now supports explicit `core`, `senior`, and `auto` modes for its senior-engineer layer. The next quality increment is to make `auto` activation more precise and more observable, so users can trust why the senior layer turned on or stayed off.
+pi-rindaman now supports explicit `core`, `senior`, and `auto` modes for its senior-engineer layer. The next quality increment is to make `auto` activation more precise and more observable, so users can trust why the senior layer turned on or stayed off.
 
 ## Scope
 
@@ -60,7 +60,7 @@ Recommended return shape:
 3. Plugin computes effective mode.
 4. If effective mode is `auto`, intent analysis returns structured activation metadata.
 5. Plugin injects the senior-engineer layer only when `active` is true.
-6. `rindaman_status` reports the structured metadata.
+6. `pi_rindaman_status` reports the structured metadata.
 
 ## Error Handling
 
@@ -90,7 +90,7 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

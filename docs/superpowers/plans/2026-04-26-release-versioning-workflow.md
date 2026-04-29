@@ -4,7 +4,7 @@
 
 **Goal:** Add a documented, repeatable GitHub-only release workflow with version alignment, changelog discipline, and verified tag releases.
 
-**Architecture:** Keep Rindaman private and GitHub-only. Add release documentation, release scripts, changelog structure, and a tag-triggered GitHub workflow that runs the existing verification stack and uploads the packed tarball as a release asset.
+**Architecture:** Keep pi-rindaman private and GitHub-only. Add release documentation, release scripts, changelog structure, and a tag-triggered GitHub workflow that runs the existing verification stack and uploads the packed tarball as a release asset.
 
 **Tech Stack:** GitHub Actions, npm scripts, changelog docs, git tags.
 
@@ -29,7 +29,7 @@
 In `package.json`, extend `scripts` with:
 
 ```json
-"release:check": "npm run typecheck && npm run build && npm test && node bin/rindaman.cjs doctor --json && npm pack --dry-run",
+"release:check": "npm run typecheck && npm run build && npm test && node bin/pi-rindaman.cjs doctor --json && npm pack --dry-run",
 "release:pack": "npm pack"
 ```
 
@@ -68,7 +68,7 @@ Expected: the new script succeeds locally.
 Create `docs/releasing.md` with these sections:
 
 ```md
-# Releasing Rindaman
+# Releasing pi-rindaman
 
 ## Versioning
 
@@ -100,7 +100,7 @@ Add a short section near installation or maintenance docs:
 ```md
 ## Releasing
 
-Rindaman uses a GitHub-only tag-based release workflow. See `docs/releasing.md` for the release checklist.
+pi-rindaman uses a GitHub-only tag-based release workflow. See `docs/releasing.md` for the release checklist.
 ```
 
 - [ ] **Step 3: Run tests**
@@ -144,7 +144,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
-      - run: node bin/rindaman.cjs doctor --json
+      - run: node bin/pi-rindaman.cjs doctor --json
       - run: npm pack
 
       - name: Create GitHub release
@@ -190,7 +190,7 @@ Expected: tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman now has enough capability that the next risk is not missing features, but product ambiguity. Users and maintainers need one clear contract for what Rindaman is, what layers it contains, what surfaces are stable, and how to interpret the plugin and CLI outputs.
+pi-rindaman now has enough capability that the next risk is not missing features, but product ambiguity. Users and maintainers need one clear contract for what pi-rindaman is, what layers it contains, what surfaces are stable, and how to interpret the plugin and CLI outputs.
 
 ## Scope
 
@@ -14,12 +14,12 @@ Add or improve:
 - a clearer README structure
 - normalized naming for layers and modes
 - explicit stability notes for major surfaces
-- a canonical `rindaman_status` example
+- a canonical `pi_rindaman_status` example
 
 Define these product areas explicitly:
 
 1. **Identity**
-   - Rindaman is one plugin that combines governance and engineering guidance.
+   - pi-rindaman is one plugin that combines governance and engineering guidance.
 
 2. **Layers**
    - Core
@@ -33,8 +33,8 @@ Define these product areas explicitly:
    - `auto`
 
 4. **Plugin Tools**
-   - `rindaman_check`
-   - `rindaman_status`
+   - `pi_rindaman_check`
+   - `pi_rindaman_status`
 
 5. **CLI Surfaces**
    - check, audit, baseline, doctor
@@ -91,13 +91,13 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria
 
-- Rindaman has one crisp product definition.
+- pi-rindaman has one crisp product definition.
 - README is organized by product model, not implementation history.
 - Stable and experimental surfaces are documented.
-- `rindaman_status` has a canonical contract example.
+- `pi_rindaman_status` has a canonical contract example.
 - Naming is consistent across public docs.

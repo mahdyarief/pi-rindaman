@@ -7,8 +7,8 @@ Pi package and CLI for strict response discipline, lifecycle verification, and p
 `pi-rindaman` is now a Pi-first package.
 
 It provides:
-- a Pi extension at `extensions/rindaman.ts`
-- a Pi skill at `skills/rindaman/SKILL.md`
+- a Pi extension at `extensions/pi-rindaman.ts`
+- a Pi skill at `skills/pi-rindaman/SKILL.md`
 - a local CLI at `bin/pi-rindaman.cjs`
 
 This repository no longer presents the legacy plugin runtime as a public surface.
@@ -54,28 +54,28 @@ User packages:
 
 ### Skill
 
-- `skills/rindaman/SKILL.md`
+- `skills/pi-rindaman/SKILL.md`
 
 Provides:
-- `/skill:rindaman`
+- `/skill:pi-rindaman`
 
 ### Extension
 
-- `extensions/rindaman.ts`
+- `extensions/pi-rindaman.ts`
 
 Provides:
-- `/rindaman on`
-- `/rindaman off`
-- `/rindaman mode core`
-- `/rindaman mode senior`
-- `/rindaman mode reviewer`
-- `/rindaman mode auto`
+- `/pi-rindaman on`
+- `/pi-rindaman off`
+- `/pi-rindaman mode core`
+- `/pi-rindaman mode senior`
+- `/pi-rindaman mode reviewer`
+- `/pi-rindaman mode auto`
 - `/quality on`
 - `/quality off`
 - `/strict on`
 - `/strict off`
-- `rindaman_check`
-- `rindaman_status`
+- `pi_rindaman_check`
+- `pi_rindaman_status`
 
 ## Modes
 
@@ -88,9 +88,9 @@ Provides:
 
 When code changed:
 
-1. run `rindaman_status`
-2. if verification is required, run `rindaman_check`
-3. run `rindaman_status` again
+1. run `pi_rindaman_status`
+2. if verification is required, run `pi_rindaman_check`
+3. run `pi_rindaman_status` again
 4. only claim done when `finalResponse.allowed` is `true`
 
 ## CLI
@@ -103,12 +103,6 @@ pi-rindaman check --json
 pi-rindaman audit --json
 pi-rindaman baseline --json
 pi-rindaman doctor --json
-```
-
-Legacy alias still works:
-
-```bash
-rindaman
 ```
 
 ## Development
@@ -124,9 +118,9 @@ npm test
 pi-rindaman/
 ├── bin/
 ├── extensions/
-│   └── rindaman.ts
+│   └── pi-rindaman.ts
 ├── skills/
-│   └── rindaman/
+│   └── pi-rindaman/
 │       └── SKILL.md
 ├── src/
 │   └── quality-engine/

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Refactor the Rindaman plugin internals into focused modules while preserving all current plugin behavior.
+**Goal:** Refactor the pi-rindaman plugin internals into focused modules while preserving all current plugin behavior.
 
 **Architecture:** Extract plugin concerns from `src/index.ts` into `src/plugin/` modules with explicit responsibilities. Keep `src/index.ts` as the composition layer that wires the helpers into OpenCode hooks.
 
@@ -34,7 +34,7 @@ Create `src/plugin/options.ts` with:
 ```ts
 import type { PluginOptions } from "@opencode-ai/plugin"
 
-export type RindamanResolvedOptions = {
+export type pi-rindamanResolvedOptions = {
   enabled: boolean
   strictResponses: boolean
   qualityLifecycle: boolean
@@ -52,7 +52,7 @@ const getBooleanOption = (
 
 export const resolvePluginOptions = (
   options: PluginOptions | undefined,
-): RindamanResolvedOptions => ({
+): pi-rindamanResolvedOptions => ({
   enabled: getBooleanOption(options, "enabled", true),
   strictResponses: getBooleanOption(options, "strictResponses", true),
   qualityLifecycle: getBooleanOption(options, "qualityLifecycle", true),
@@ -62,7 +62,7 @@ export const resolvePluginOptions = (
 
 - [ ] **Step 2: Replace local option code**
 
-In `src/index.ts`, import `resolvePluginOptions` and `RindamanResolvedOptions`, then delete the local definitions.
+In `src/index.ts`, import `resolvePluginOptions` and `pi-rindamanResolvedOptions`, then delete the local definitions.
 
 - [ ] **Step 3: Run build**
 
@@ -111,7 +111,7 @@ export { sessionEnabledStates, sessionSeniorFullstackStates }
 Create `src/plugin/final-response-gate.ts` with:
 
 ```ts
-import type { RindamanResolvedOptions } from "./options.js"
+import type { pi-rindamanResolvedOptions } from "./options.js"
 import type { SessionQualityState } from "./session-state.js"
 
 export type FinalResponseGate = {
@@ -120,12 +120,12 @@ export type FinalResponseGate = {
 }
 
 export const isVerificationRequired = (
-  resolvedOptions: RindamanResolvedOptions,
+  resolvedOptions: pi-rindamanResolvedOptions,
   sessionState: SessionQualityState,
 ) => resolvedOptions.verificationRequired && sessionState.changedFiles.length > 0
 
 export const createFinalResponseGate = (
-  resolvedOptions: RindamanResolvedOptions,
+  resolvedOptions: pi-rindamanResolvedOptions,
   sessionState: SessionQualityState,
 ): FinalResponseGate => {
   if (!resolvedOptions.enabled) {
@@ -174,8 +174,8 @@ Move these concerns into `src/plugin/toggles.ts`:
 - `RINDAMAN_ON_COMMANDS`
 - `RINDAMAN_OFF_COMMANDS`
 - `normalizeCommandText`
-- `getRindamanToggle`
-- `getRindamanEnabled`
+- `getpi-rindamanToggle`
+- `getpi-rindamanEnabled`
 
 Export the functions used by `src/index.ts`.
 
@@ -213,9 +213,9 @@ Create `src/plugin/rule-messages.ts` with:
 - `TransformOutput`
 - `getMessageRole`
 - `getMessageText`
-- `isRindamanRuleMessage`
+- `ispi-rindamanRuleMessage`
 - `isSeniorFullstackRuleMessage`
-- `createRindamanRuleMessage`
+- `createpi-rindamanRuleMessage`
 - `createSeniorFullstackRuleMessage`
 
 Use the existing implementations from `src/index.ts`.
@@ -242,16 +242,16 @@ Move these into `src/plugin/tools.ts`:
 
 - `getCliPath`
 - `readChangedFiles`
-- `createRindamanCheckTool`
-- `createRindamanStatusTool`
+- `createpi-rindamanCheckTool`
+- `createpi-rindamanStatusTool`
 
 Make the module take explicit dependencies instead of importing hidden state from `src/index.ts`.
 
 Suggested constructor shape:
 
 ```ts
-export const createRindamanCheckTool = (dependencies) => tool({...})
-export const createRindamanStatusTool = (resolvedOptions, dependencies) => tool({...})
+export const createpi-rindamanCheckTool = (dependencies) => tool({...})
+export const createpi-rindamanStatusTool = (resolvedOptions, dependencies) => tool({...})
 ```
 
 Where `dependencies` contains the session helpers and final-response gate helpers.
@@ -288,7 +288,7 @@ Run:
 ```bash
 npm run build
 npm test
-node bin/rindaman.cjs doctor --json
+node bin/pi-rindaman.cjs doctor --json
 npm pack --dry-run
 git status --short
 ```

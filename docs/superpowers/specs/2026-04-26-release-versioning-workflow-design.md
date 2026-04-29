@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Rindaman now has enough product surface area that maintainers need a repeatable GitHub-only release workflow. Users should be able to reference tagged versions confidently, and maintainers should have a clear checklist for version bumps, changelog updates, verification, and release artifacts.
+pi-rindaman now has enough product surface area that maintainers need a repeatable GitHub-only release workflow. Users should be able to reference tagged versions confidently, and maintainers should have a clear checklist for version bumps, changelog updates, verification, and release artifacts.
 
 ## Scope
 
-Keep Rindaman as:
+Keep pi-rindaman as:
 
 - `private: true`
 - GitHub/local installation only
@@ -89,7 +89,7 @@ Verification commands:
 - `npm run typecheck`
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria

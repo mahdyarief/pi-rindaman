@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman now supports reliable checks, debt classification, and baseline files. The next adoption blocker is monorepo support: many production repositories organize code under `apps/*` and `packages/*`, with package-specific scripts, config, and baselines.
+pi-rindaman now supports reliable checks, debt classification, and baseline files. The next adoption blocker is monorepo support: many production repositories organize code under `apps/*` and `packages/*`, with package-specific scripts, config, and baselines.
 
 This increment adds workspace targeting without changing the default single-project behavior.
 
@@ -41,10 +41,10 @@ Behavior:
 Workspace config rules:
 
 - root config is the base
-- workspace `package.json.rindaman` overrides root config
-- workspace `.rindamanrc.json` overrides workspace package config
+- workspace `package.json.pi-rindaman` overrides root config
+- workspace `.pi-rindamanrc.json` overrides workspace package config
 - CLI flags override all config
-- workspace baseline defaults to `<workspace>/.rindaman/baseline.json`
+- workspace baseline defaults to `<workspace>/.pi-rindaman/baseline.json`
 
 Formatter and script behavior:
 
@@ -83,7 +83,7 @@ Out of scope:
 
 ## Architecture
 
-Keep implementation in `bin/rindaman.cjs` for this increment. Add small helpers for workspace discovery, workspace selection, and aggregate result creation.
+Keep implementation in `bin/pi-rindaman.cjs` for this increment. Add small helpers for workspace discovery, workspace selection, and aggregate result creation.
 
 The existing check and baseline command paths should accept an execution root and optional workspace metadata. Single-project execution remains the default path.
 
@@ -133,13 +133,13 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria
 
 - Current non-workspace behavior remains compatible.
 - Workspace checks run from workspace roots.
-- Baselines default to workspace-local `.rindaman/baseline.json`.
+- Baselines default to workspace-local `.pi-rindaman/baseline.json`.
 - Aggregated workspace JSON is deterministic.
 - Tests pass on Windows and CI without network access.

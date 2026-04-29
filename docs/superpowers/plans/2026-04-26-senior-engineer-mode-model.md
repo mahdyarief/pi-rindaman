@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add explicit `core`, `senior`, and `auto` mode semantics to Rindaman and expose the active mode clearly through plugin status.
+**Goal:** Add explicit `core`, `senior`, and `auto` mode semantics to pi-rindaman and expose the active mode clearly through plugin status.
 
 **Architecture:** Extend the plugin-side options, session state, toggle parser, and status output so core governance is always present while the senior layer can be forced on, forced off, or selected automatically by intent. Keep the current layered injection model intact.
 
@@ -14,7 +14,7 @@
 
 - Modify: `src/plugin/options.ts` for configured mode.
 - Modify: `src/plugin/session-state.ts` for per-session mode overrides.
-- Modify: `src/plugin/toggles.ts` for `/rindaman mode ...` parsing.
+- Modify: `src/plugin/toggles.ts` for `/pi-rindaman mode ...` parsing.
 - Modify: `src/index.ts` for effective mode resolution and injection behavior.
 - Modify: `src/plugin/tools.ts` for richer status output.
 - Modify: `test/plugin.test.mjs` for mode and status tests.
@@ -30,15 +30,15 @@
 Add near the top:
 
 ```ts
-export type RindamanMode = "core" | "senior" | "auto"
+export type pi-rindamanMode = "core" | "senior" | "auto"
 ```
 
 - [ ] **Step 2: Extend resolved options**
 
-Add `mode` to `RindamanResolvedOptions`:
+Add `mode` to `pi-rindamanResolvedOptions`:
 
 ```ts
-  mode: RindamanMode
+  mode: pi-rindamanMode
 ```
 
 - [ ] **Step 3: Add mode resolver helper**
@@ -46,7 +46,7 @@ Add `mode` to `RindamanResolvedOptions`:
 Add:
 
 ```ts
-const getModeOption = (options: PluginOptions | undefined): RindamanMode => {
+const getModeOption = (options: PluginOptions | undefined): pi-rindamanMode => {
   const configuredValue = options?.mode
   return configuredValue === "core" || configuredValue === "senior"
     ? configuredValue
@@ -78,9 +78,9 @@ Expected: compiles successfully.
 Add:
 
 ```ts
-import type { RindamanMode } from "./options.js"
+import type { pi-rindamanMode } from "./options.js"
 
-const sessionModeStates = new Map<string, RindamanMode>()
+const sessionModeStates = new Map<string, pi-rindamanMode>()
 ```
 
 - [ ] **Step 2: Export session mode helpers**
@@ -89,7 +89,7 @@ Add:
 
 ```ts
 export const getSessionMode = (sessionID: string) => sessionModeStates.get(sessionID)
-export const setSessionMode = (sessionID: string, mode: RindamanMode) => {
+export const setSessionMode = (sessionID: string, mode: pi-rindamanMode) => {
   sessionModeStates.set(sessionID, mode)
 }
 ```
@@ -115,18 +115,18 @@ Expected: builds cleanly.
 In `src/plugin/toggles.ts`, add:
 
 ```ts
-import type { RindamanMode } from "./options.js"
+import type { pi-rindamanMode } from "./options.js"
 
-export const getRindamanModeOverride = (text: string): RindamanMode | undefined => {
+export const getpi-rindamanModeOverride = (text: string): pi-rindamanMode | undefined => {
   const normalizedFullText = normalizeCommandText(text)
 
-  if (normalizedFullText === "/rindaman mode core" || normalizedFullText === "rindaman mode core") {
+  if (normalizedFullText === "/pi-rindaman mode core" || normalizedFullText === "rindaman mode core") {
     return "core"
   }
-  if (normalizedFullText === "/rindaman mode senior" || normalizedFullText === "rindaman mode senior") {
+  if (normalizedFullText === "/pi-rindaman mode senior" || normalizedFullText === "rindaman mode senior") {
     return "senior"
   }
-  if (normalizedFullText === "/rindaman mode auto" || normalizedFullText === "rindaman mode auto") {
+  if (normalizedFullText === "/pi-rindaman mode auto" || normalizedFullText === "rindaman mode auto") {
     return "auto"
   }
 
@@ -137,9 +137,9 @@ export const getRindamanModeOverride = (text: string): RindamanMode | undefined 
 
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index]
-    if (line === "/rindaman mode core" || line === "rindaman mode core") return "core"
-    if (line === "/rindaman mode senior" || line === "rindaman mode senior") return "senior"
-    if (line === "/rindaman mode auto" || line === "rindaman mode auto") return "auto"
+    if (line === "/pi-rindaman mode core" || line === "rindaman mode core") return "core"
+    if (line === "/pi-rindaman mode senior" || line === "rindaman mode senior") return "senior"
+    if (line === "/pi-rindaman mode auto" || line === "rindaman mode auto") return "auto"
   }
 
   return undefined
@@ -148,10 +148,10 @@ export const getRindamanModeOverride = (text: string): RindamanMode | undefined 
 
 - [ ] **Step 2: Update chat.message hook**
 
-In `src/index.ts`, import `getRindamanModeOverride` and `setSessionMode`, then in `chat.message`:
+In `src/index.ts`, import `getpi-rindamanModeOverride` and `setSessionMode`, then in `chat.message`:
 
 ```ts
-      const modeOverride = getRindamanModeOverride(messageText)
+      const modeOverride = getpi-rindamanModeOverride(messageText)
 
       if (modeOverride) {
         setSessionMode(input.sessionID, modeOverride)
@@ -176,8 +176,8 @@ Add a local helper:
 
 ```ts
 const getEffectiveMode = (
-  configuredMode: RindamanMode,
-  sessionMode: RindamanMode | undefined,
+  configuredMode: pi-rindamanMode,
+  sessionMode: pi-rindamanMode | undefined,
 ) => sessionMode ?? configuredMode
 ```
 
@@ -199,7 +199,7 @@ Then derive senior layer activation as:
           : effectiveMode === "core"
             ? false
             : enabled && getSeniorFullstackEnabled(
-                messagesWithoutRindamanRules,
+                messagesWithoutpi-rindamanRules,
                 getMessageRole,
                 getMessageText,
               )
@@ -218,7 +218,7 @@ test("config core mode suppresses senior guidance", async () => {
 
   await hooks["experimental.chat.messages.transform"]({}, output)
 
-  assert.equal(getRindamanRuleMessages(output.messages).length, 1)
+  assert.equal(getpi-rindamanRuleMessages(output.messages).length, 1)
   assert.equal(getSeniorFullstackRuleMessages(output.messages).length, 0)
 })
 
@@ -230,7 +230,7 @@ test("config senior mode forces senior guidance", async () => {
 
   await hooks["experimental.chat.messages.transform"]({}, output)
 
-  assert.equal(getRindamanRuleMessages(output.messages).length, 1)
+  assert.equal(getpi-rindamanRuleMessages(output.messages).length, 1)
   assert.equal(getSeniorFullstackRuleMessages(output.messages).length, 1)
 })
 ```
@@ -252,14 +252,14 @@ Expected: mode-driven injection works.
 In `src/plugin/tools.ts`, add to `ToolDependencies`:
 
 ```ts
-  getSessionMode: (sessionID: string) => RindamanMode | undefined
+  getSessionMode: (sessionID: string) => pi-rindamanMode | undefined
 ```
 
-Import `RindamanMode` from `./options.js`.
+Import `pi-rindamanMode` from `./options.js`.
 
 - [ ] **Step 2: Add status fields**
 
-In `createRindamanStatusTool`, compute:
+In `createpi-rindamanStatusTool`, compute:
 
 ```ts
       const sessionMode = dependencies.getSessionMode(context.sessionID)
@@ -291,7 +291,7 @@ Add to JSON:
 Add:
 
 ```js
-test("rindaman_status reports mode and senior engineer semantics", async () => {
+test("pi_rindaman_status reports mode and senior engineer semantics", async () => {
   const hooks = await server({}, { mode: "auto" })
   const context = createToolContext()
   const output = createOutput([
@@ -326,7 +326,7 @@ Add a short section:
 ```md
 ### Senior Engineer Modes
 
-Rindaman supports three senior-guidance modes:
+pi-rindaman supports three senior-guidance modes:
 
 - `core` - governance only
 - `senior` - governance plus senior fullstack guidance
@@ -334,9 +334,9 @@ Rindaman supports three senior-guidance modes:
 
 Session overrides:
 
-- `/rindaman mode core`
-- `/rindaman mode senior`
-- `/rindaman mode auto`
+- `/pi-rindaman mode core`
+- `/pi-rindaman mode senior`
+- `/pi-rindaman mode auto`
 ```
 
 - [ ] **Step 2: Run full tests**
@@ -364,7 +364,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

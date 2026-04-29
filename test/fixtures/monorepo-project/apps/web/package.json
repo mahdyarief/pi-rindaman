@@ -1,7 +1,7 @@
 {
-  "name": "@rindaman/web",
+  "name": "@pi-rindaman/web",
   "private": true,
-  "rindaman": {
+  "pi-rindaman": {
     "checks": {
       "semantic": false,
       "types": false,

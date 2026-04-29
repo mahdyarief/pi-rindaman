@@ -4,7 +4,7 @@
 
 **Goal:** Refactor the CLI into focused internal modules while preserving all current behavior.
 
-**Architecture:** Move CLI responsibilities from `bin/rindaman.cjs` into small CommonJS modules under `src/cli/`. Keep `bin/rindaman.cjs` as a thin executable that parses args, composes helpers, and exits with current behavior.
+**Architecture:** Move CLI responsibilities from `bin/pi-rindaman.cjs` into small CommonJS modules under `src/cli/`. Keep `bin/pi-rindaman.cjs` as a thin executable that parses args, composes helpers, and exits with current behavior.
 
 **Tech Stack:** Node.js CommonJS CLI, `node:test`, existing integration test suite.
 
@@ -18,13 +18,13 @@
 - Create: `src/cli/baseline.cjs` for baseline read/write helpers.
 - Create: `src/cli/policy.cjs` for debt classification and status policy.
 - Create: `src/cli/check-runner.cjs` for check execution and result assembly.
-- Modify: `bin/rindaman.cjs` to use the extracted helpers.
+- Modify: `bin/pi-rindaman.cjs` to use the extracted helpers.
 
 ## Task 1: Extract Arguments Module
 
 **Files:**
 - Create: `src/cli/args.cjs`
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Create args module**
 
@@ -89,7 +89,7 @@ module.exports = {
 
 - [ ] **Step 2: Update entrypoint to use args module**
 
-In `bin/rindaman.cjs`, replace inline command parsing with imports from `src/cli/args.cjs` and build `cliArgs = createCliArgs(process.argv.slice(2))`.
+In `bin/pi-rindaman.cjs`, replace inline command parsing with imports from `src/cli/args.cjs` and build `cliArgs = createCliArgs(process.argv.slice(2))`.
 
 - [ ] **Step 3: Run CLI tests**
 
@@ -101,7 +101,7 @@ Expected: all CLI tests still pass.
 
 **Files:**
 - Create: `src/cli/config.cjs`
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Create config module**
 
@@ -133,7 +133,7 @@ function applyFlagOverrides(config, cliArgs, readFlagValue, readDebtModeFlag) {
 
 - [ ] **Step 2: Update entrypoint imports**
 
-In `bin/rindaman.cjs`, import the config module and pass `cliArgs.commandArgs`, `cliArgs.flags`, and flag helpers into `applyFlagOverrides`.
+In `bin/pi-rindaman.cjs`, import the config module and pass `cliArgs.commandArgs`, `cliArgs.flags`, and flag helpers into `applyFlagOverrides`.
 
 - [ ] **Step 3: Run tests**
 
@@ -145,7 +145,7 @@ Expected: all CLI tests still pass.
 
 **Files:**
 - Create: `src/cli/workspaces.cjs`
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Create workspace module**
 
@@ -173,7 +173,7 @@ module.exports = {
 
 - [ ] **Step 2: Update entrypoint callers**
 
-Replace local workspace helper references in `bin/rindaman.cjs` with imports from the module.
+Replace local workspace helper references in `bin/pi-rindaman.cjs` with imports from the module.
 
 - [ ] **Step 3: Run tests**
 
@@ -186,7 +186,7 @@ Expected: workspace tests still pass.
 **Files:**
 - Create: `src/cli/baseline.cjs`
 - Create: `src/cli/policy.cjs`
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Create baseline module**
 
@@ -240,7 +240,7 @@ Expected: all CLI tests still pass.
 
 **Files:**
 - Create: `src/cli/check-runner.cjs`
-- Modify: `bin/rindaman.cjs`
+- Modify: `bin/pi-rindaman.cjs`
 
 - [ ] **Step 1: Create check-runner module**
 
@@ -266,7 +266,7 @@ Move these functions into `src/cli/check-runner.cjs`:
 - `createCheckCommandResult`
 - `createWorkspaceAggregateResult`
 
-Export only the functions used by `bin/rindaman.cjs` directly.
+Export only the functions used by `bin/pi-rindaman.cjs` directly.
 
 - [ ] **Step 2: Keep helper injection explicit**
 
@@ -274,7 +274,7 @@ Pass imported helpers into `createCheckCommandResult` and `createWorkspaceAggreg
 
 - [ ] **Step 3: Shrink entrypoint**
 
-Leave `bin/rindaman.cjs` with:
+Leave `bin/pi-rindaman.cjs` with:
 
 - color/print helpers
 - top-level command handlers
@@ -306,7 +306,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

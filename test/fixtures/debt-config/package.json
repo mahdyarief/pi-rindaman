@@ -1,5 +1,5 @@
 {
-  "rindaman": {
+  "pi-rindaman": {
     "debtMode": "all",
     "failOnExistingDebt": false,
     "checks": {

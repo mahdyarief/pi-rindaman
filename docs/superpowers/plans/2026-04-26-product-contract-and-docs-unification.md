@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Give Rindaman a single coherent public contract covering identity, layers, modes, tools, status semantics, CLI surfaces, and stability levels.
+**Goal:** Give pi-rindaman a single coherent public contract covering identity, layers, modes, tools, status semantics, CLI surfaces, and stability levels.
 
 **Architecture:** Keep this increment documentation-only. Add a dedicated product contract document, restructure the README around the product model, and define a clear stable/experimental boundary for users and integrators.
 
@@ -26,11 +26,11 @@
 Start the document with:
 
 ```md
-# Rindaman Product Contract
+# pi-rindaman Product Contract
 
 ## Identity
 
-Rindaman is a GitHub/local OpenCode plugin that combines:
+pi-rindaman is a GitHub/local OpenCode plugin that combines:
 
 - core governance and verification
 - optional senior-engineer implementation guidance
@@ -49,7 +49,7 @@ Add:
 - **Senior Engineer** - implementation-oriented engineering guidance
 - **Reviewer** - findings-first review guidance
 
-Core is always active when Rindaman is enabled. Senior Engineer and Reviewer are mutually exclusive secondary layers.
+Core is always active when pi-rindaman is enabled. Senior Engineer and Reviewer are mutually exclusive secondary layers.
 ```
 
 - [ ] **Step 3: Add mode model**
@@ -78,8 +78,8 @@ Add sections documenting:
 ```md
 ## Plugin Tools
 
-- `rindaman_check`
-- `rindaman_status`
+- `pi_rindaman_check`
+- `pi_rindaman_status`
 
 ## CLI Surfaces
 
@@ -102,7 +102,7 @@ Add:
 - tool names
 - mode names
 - top-level CLI commands
-- top-level `rindaman_status` contract semantics
+- top-level `pi_rindaman_status` contract semantics
 
 ### Experimental
 
@@ -178,7 +178,7 @@ For the canonical contract, see `docs/product-contract.md`.
 
 - [ ] **Step 1: Add one canonical status example**
 
-Add a single `rindaman_status` JSON example that includes:
+Add a single `pi_rindaman_status` JSON example that includes:
 
 ```json
 {
@@ -250,7 +250,7 @@ Run:
 ```bash
 npm run build
 npm test
-node bin/rindaman.cjs doctor --json
+node bin/pi-rindaman.cjs doctor --json
 npm pack --dry-run
 git status --short
 ```

@@ -4,7 +4,7 @@
 
 **Goal:** Make senior-engineer auto activation more precise and expose clearer activation metadata in plugin status.
 
-**Architecture:** Keep the current `core/senior/auto` mode model intact, but replace loose activation booleans in the intent layer with structured activation analysis. Wire the resulting metadata through `src/index.ts` and `rindaman_status` without changing CLI behavior.
+**Architecture:** Keep the current `core/senior/auto` mode model intact, but replace loose activation booleans in the intent layer with structured activation analysis. Wire the resulting metadata through `src/index.ts` and `pi_rindaman_status` without changing CLI behavior.
 
 **Tech Stack:** TypeScript OpenCode plugin, modular plugin helpers, `node:test` plugin integration suite.
 
@@ -156,7 +156,7 @@ with:
 
 ```ts
       const activation = analyzeSeniorFullstackActivation(
-        messagesWithoutRindamanRules,
+        messagesWithoutpi-rindamanRules,
         getMessageRole,
         getMessageText,
       )
@@ -226,7 +226,7 @@ In `src/plugin/tools.ts`, add to `ToolDependencies`:
 
 - [ ] **Step 2: Replace placeholder status semantics**
 
-In `createRindamanStatusTool`, replace the current synthetic `seniorFullstackReason` and `seniorFullstackIntent` logic with metadata from `getSeniorEngineerMetadata`.
+In `createpi-rindamanStatusTool`, replace the current synthetic `seniorFullstackReason` and `seniorFullstackIntent` logic with metadata from `getSeniorEngineerMetadata`.
 
 Fallback metadata when missing:
 
@@ -280,7 +280,7 @@ test("generic implementation request without engineering context stays core-only
     createMessage("user", "Implement the dashboard filter"),
   ])
 
-  assert.equal(getRindamanRuleMessages(messages).length, 1)
+  assert.equal(getpi-rindamanRuleMessages(messages).length, 1)
   assert.equal(getSeniorFullstackRuleMessages(messages).length, 0)
 })
 ```
@@ -293,7 +293,7 @@ test("review request mentioning api or auth stays core-only", async () => {
     createMessage("user", "Review the auth API schema and tell me the risks"),
   ])
 
-  assert.equal(getRindamanRuleMessages(messages).length, 1)
+  assert.equal(getpi-rindamanRuleMessages(messages).length, 1)
   assert.equal(getSeniorFullstackRuleMessages(messages).length, 0)
 })
 ```
@@ -329,7 +329,7 @@ Expected: adversarial tests pass.
 
 - [ ] **Step 1: Extend status documentation**
 
-Add the new fields to the `rindaman_status` section:
+Add the new fields to the `pi_rindaman_status` section:
 
 ```md
 - `seniorEngineer.intentSource`
@@ -369,7 +369,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

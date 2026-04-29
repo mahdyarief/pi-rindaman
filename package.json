@@ -4,8 +4,7 @@
   "description": "Pi package and CLI for strict response discipline, lifecycle verification, and quality checks.",
   "type": "module",
   "bin": {
-    "pi-rindaman": "bin/pi-rindaman.cjs",
-    "rindaman": "bin/pi-rindaman.cjs"
+    "pi-rindaman": "bin/pi-rindaman.cjs"
   },
   "sideEffects": false,
   "files": [
@@ -55,7 +54,7 @@
   },
   "pi": {
     "extensions": [
-      "extensions/rindaman.ts"
+      "extensions/pi-rindaman.ts"
     ],
     "skills": [
       "skills"

@@ -1,22 +1,22 @@
-# Rindaman Core Plus Senior Fullstack Design
+# pi-rindaman Core Plus Senior Fullstack Design
 
 ## Purpose
 
-Rindaman should evolve from a pure quality governor into a unified development operating system. It should govern quality and verification while also providing implementation doctrine for modern web-product engineering.
+pi-rindaman should evolve from a pure quality governor into a unified development operating system. It should govern quality and verification while also providing implementation doctrine for modern web-product engineering.
 
-This increment combines both roles into one plugin without turning Rindaman into a stack-specific skill.
+This increment combines both roles into one plugin without turning pi-rindaman into a stack-specific skill.
 
 ## Scope
 
-Rindaman remains one plugin and one install, but gains two internal layers:
+pi-rindaman remains one plugin and one install, but gains two internal layers:
 
-1. **Rindaman Core**
+1. **pi-rindaman Core**
    - strict response mode
    - lifecycle enforcement
    - verification-before-completion
    - CLI checks, debt, baseline, monorepo, and security governance
 
-2. **Rindaman Senior Fullstack**
+2. **pi-rindaman Senior Fullstack**
    - framework-agnostic web-product engineering guidance
    - frontend/backend boundary discipline
    - API contract discipline
@@ -27,7 +27,7 @@ Rindaman remains one plugin and one install, but gains two internal layers:
 
 Activation model:
 
-- Core is always on when Rindaman is enabled.
+- Core is always on when pi-rindaman is enabled.
 - Senior Fullstack activates automatically for implementation-oriented tasks.
 - Senior Fullstack stays quiet for pure verification, release, or status tasks.
 
@@ -75,11 +75,11 @@ If intent is mixed, prefer enabling the layer only when implementation is materi
 ## Data Flow
 
 1. Plugin reads message history.
-2. Plugin determines whether Rindaman is enabled.
+2. Plugin determines whether pi-rindaman is enabled.
 3. Plugin determines whether Senior Fullstack guidance should be active.
 4. Plugin injects the core rule always when enabled.
 5. Plugin injects the senior fullstack rule only when active.
-6. `rindaman_status` reports whether the senior fullstack layer is active.
+6. `pi_rindaman_status` reports whether the senior fullstack layer is active.
 
 ## Error Handling
 
@@ -96,19 +96,19 @@ Add coverage for:
 - implementation-oriented request injects both rules
 - review/status/release request injects only core
 - existing toggle behavior still works
-- `rindaman_status` reports whether senior fullstack guidance is active
+- `pi_rindaman_status` reports whether senior fullstack guidance is active
 - core-only behavior is unchanged when the second layer is inactive
 
 Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria
 
-- Rindaman remains one plugin with one coherent identity.
+- pi-rindaman remains one plugin with one coherent identity.
 - Core governance remains stable.
 - Senior Fullstack guidance is generic and stack-agnostic.
 - Activation logic is conservative and test-covered.

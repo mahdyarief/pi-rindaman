@@ -67,7 +67,7 @@ function print(message) {
 
 function printError(message) {
   if (!cliArgs.jsonOutput) {
-    console.error(colorize(RED, `[Rindaman] ${message}`));
+    console.error(colorize(RED, `[pi-rindaman] ${message}`));
   }
 }
 
@@ -114,14 +114,14 @@ function printHumanSummary(result) {
           ? RED
           : YELLOW;
     console.log(
-      colorize(color, `[Rindaman] ${check.name}: ${check.status}${suffix}`),
+      colorize(color, `[pi-rindaman] ${check.name}: ${check.status}${suffix}`),
     );
   }
 
-  console.log(`[Rindaman] Status: ${result.status}`);
+  console.log(`[pi-rindaman] Status: ${result.status}`);
 
   if (result.reportPath) {
-    console.log(`[Rindaman] Report: ${result.reportPath}`);
+    console.log(`[pi-rindaman] Report: ${result.reportPath}`);
   }
 }
 
@@ -193,11 +193,11 @@ function runCheckCommand(auditMode) {
 
   const result = createSingleCheckResult(auditMode, projectRoot);
 
-  printSection(auditMode ? "Rindaman Audit" : "Rindaman Check");
-  print(`[Rindaman] Project root: ${result.projectRoot}`);
-  print(`[Rindaman] Package manager: ${result.packageManager}`);
-  print(`[Rindaman] Base ref: ${result.baseRef}`);
-  print(`[Rindaman] Changed files: ${result.changedFiles.length}`);
+  printSection(auditMode ? "pi-rindaman Audit" : "pi-rindaman Check");
+  print(`[pi-rindaman] Project root: ${result.projectRoot}`);
+  print(`[pi-rindaman] Package manager: ${result.packageManager}`);
+  print(`[pi-rindaman] Base ref: ${result.baseRef}`);
+  print(`[pi-rindaman] Changed files: ${result.changedFiles.length}`);
 
   if (cliArgs.jsonOutput) {
     writeJsonResult(result);
@@ -259,8 +259,8 @@ function runBaselineCommand() {
     if (cliArgs.jsonOutput) {
       writeJsonResult(result);
     } else {
-      printSection("Rindaman Baseline");
-      console.log(`[Rindaman] Workspaces: ${workspaceResults.length}`);
+      printSection("pi-rindaman Baseline");
+      console.log(`[pi-rindaman] Workspaces: ${workspaceResults.length}`);
     }
 
     process.exit(EXIT_OK);
@@ -301,9 +301,9 @@ function runBaselineCommand() {
   if (cliArgs.jsonOutput) {
     writeJsonResult(result);
   } else {
-    printSection("Rindaman Baseline");
-    console.log(`[Rindaman] Baseline: ${baseline.path}`);
-    console.log(`[Rindaman] Checks: ${baseline.checkNames.join(", ") || "none"}`);
+    printSection("pi-rindaman Baseline");
+    console.log(`[pi-rindaman] Baseline: ${baseline.path}`);
+    console.log(`[pi-rindaman] Checks: ${baseline.checkNames.join(", ") || "none"}`);
   }
 
   process.exit(EXIT_OK);
@@ -381,7 +381,7 @@ function runDoctorCommand() {
   if (cliArgs.jsonOutput) {
     writeJsonResult(result);
   } else {
-    printSection("Rindaman Doctor");
+    printSection("pi-rindaman Doctor");
 
     for (const check of checks) {
       const suffix = check.detail ? ` - ${check.detail}` : "";
@@ -392,7 +392,7 @@ function runDoctorCommand() {
             ? RED
             : YELLOW;
       console.log(
-        colorize(color, `[Rindaman] ${check.name}: ${check.status}${suffix}`),
+        colorize(color, `[pi-rindaman] ${check.name}: ${check.status}${suffix}`),
       );
     }
   }
@@ -403,7 +403,7 @@ function runDoctorCommand() {
 function printHelp() {
   console.log(
     [
-      "Rindaman - Pi package strict quality governor",
+      "pi-rindaman - Pi package strict quality governor",
       "",
       "Usage:",
       "  pi-rindaman check [--json] [--include-output] [--strict] [--changed-only] [--all] [--report]",
@@ -413,7 +413,7 @@ function printHelp() {
       "  pi-rindaman help",
       "",
       "Legacy alias:",
-      "  rindaman <command>",
+      "  pi-rindaman <command>",
       "",
       "Options:",
       "  --json             Print structured JSON output",
@@ -422,7 +422,7 @@ function printHelp() {
       "  --changed-only     Run file-scoped checks against changed JS/TS files",
       "  --all              Run broad checks where supported",
       "  --base <ref>       Compare changed files against a specific base ref",
-      "  --report           Write .rindaman/report.md through the semantic engine",
+      "  --report           Write .pi-rindaman/report.md through the semantic engine",
       "  --report-path <p>  Write report to a custom path when --report is enabled",
       "  --debt-mode <mode> Classify debt with changed-only or all mode",
       "  --fail-existing    Treat existing debt as blocking",

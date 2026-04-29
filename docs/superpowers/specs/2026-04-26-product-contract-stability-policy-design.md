@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman has grown into a serious engineering product, but its public contract is still spread across README sections, code, and historical specs. The biggest remaining product risk is ambiguity about what Rindaman guarantees, what is stable, and what is still heuristic or evolving.
+pi-rindaman has grown into a serious engineering product, but its public contract is still spread across README sections, code, and historical specs. The biggest remaining product risk is ambiguity about what pi-rindaman guarantees, what is stable, and what is still heuristic or evolving.
 
 This increment defines a canonical product contract and a clear stability policy.
 
@@ -28,7 +28,7 @@ Add a stability policy that explicitly separates:
 - mode names
 - top-level CLI commands
 - CLI exit code meanings
-- top-level `rindaman_status` semantics
+- top-level `pi_rindaman_status` semantics
 
 ### Experimental
 
@@ -82,12 +82,12 @@ Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria
 
-- Rindaman has one canonical product contract.
+- pi-rindaman has one canonical product contract.
 - Stable vs experimental semantics are explicit.
 - README points readers to the contract instead of duplicating too much detail.
 - Future features have a clearer standard for whether they are stable or experimental.

@@ -1,4 +1,4 @@
-# Rindaman Product Contract
+# pi-rindaman Product Contract
 
 ## Identity
 
@@ -17,14 +17,14 @@ It combines:
 The package provides a Pi extension that adds:
 - session toggles
 - mode commands
-- `rindaman_check`
-- `rindaman_status`
+- `pi_rindaman_check`
+- `pi_rindaman_status`
 - verification-aware session behavior
 
 ### Skill
 
 The package provides a Pi skill:
-- `/skill:rindaman`
+- `/skill:pi-rindaman`
 
 ### CLI
 
@@ -40,7 +40,7 @@ The package provides these stable CLI surfaces:
 - **Senior Engineer** - implementation-oriented engineering guidance
 - **Reviewer** - findings-first review guidance
 
-Core is always active when Rindaman is enabled. Senior Engineer and Reviewer are mutually exclusive secondary layers.
+Core is always active when pi-rindaman is enabled. Senior Engineer and Reviewer are mutually exclusive secondary layers.
 
 ## Modes
 
@@ -71,7 +71,7 @@ Canonical status concepts:
 - tool names
 - mode names
 - top-level CLI commands
-- top-level `rindaman_status` contract semantics
+- top-level `pi_rindaman_status` contract semantics
 - Pi command names documented in README
 
 ### Experimental

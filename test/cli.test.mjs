@@ -163,7 +163,7 @@ test("CLI help exits successfully", () => {
   const result = runCli(["--help"], packageDirectory);
 
   assert.equal(result.status, 0);
-  assert.match(result.stdout, /Rindaman/);
+  assert.match(result.stdout, /pi-rindaman/);
 });
 
 test("CLI doctor supports JSON output", () => {
@@ -201,12 +201,12 @@ test("CLI check supports fixture-backed JSON output", () => {
 
 test("CLI check reports typecheck script failures", () => {
   const fixtureDirectory = writeTemporaryChangedFileFixture(
-    "rindaman-typecheck-introduced-fixture",
+    "pi-rindaman-typecheck-introduced-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           syntax: false,
@@ -252,17 +252,17 @@ test("CLI check reports formatter failures", () => {
 test("CLI baseline writes failed check names", () => {
   const baselinePath = resolve(
     tmpdir(),
-    "rindaman-baseline-command-fixture",
-    ".rindaman",
+    "pi-rindaman-baseline-command-fixture",
+    ".pi-rindaman",
     "baseline.json",
   );
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-baseline-command-fixture",
+    "pi-rindaman-baseline-command-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           syntax: false,
@@ -286,12 +286,12 @@ test("CLI baseline writes failed check names", () => {
 
 test("CLI check classifies baseline failures as existing", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-existing-baseline-fixture",
+    "pi-rindaman-existing-baseline-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           syntax: false,
@@ -300,9 +300,9 @@ test("CLI check classifies baseline failures as existing", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
-    resolve(fixtureDirectory, ".rindaman", "baseline.json"),
+    resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
     `${JSON.stringify(
       { version: 1, createdAt: "2026-04-26T00:00:00.000Z", checks: ["types"] },
       null,
@@ -322,12 +322,12 @@ test("CLI check classifies baseline failures as existing", () => {
 
 test("CLI check can fail existing baseline debt", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-fail-existing-baseline-fixture",
+    "pi-rindaman-fail-existing-baseline-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           syntax: false,
@@ -336,9 +336,9 @@ test("CLI check can fail existing baseline debt", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
-    resolve(fixtureDirectory, ".rindaman", "baseline.json"),
+    resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
     `${JSON.stringify(
       { version: 1, createdAt: "2026-04-26T00:00:00.000Z", checks: ["types"] },
       null,
@@ -360,12 +360,12 @@ test("CLI check can fail existing baseline debt", () => {
 
 test("CLI check can ignore an existing baseline", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-no-baseline-fixture",
+    "pi-rindaman-no-baseline-fixture",
     {
       scripts: {
         typecheck: "node -e \"process.exit(1)\"",
       },
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           syntax: false,
@@ -374,9 +374,9 @@ test("CLI check can ignore an existing baseline", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
-    resolve(fixtureDirectory, ".rindaman", "baseline.json"),
+    resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
     `${JSON.stringify(
       { version: 1, createdAt: "2026-04-26T00:00:00.000Z", checks: ["types"] },
       null,
@@ -399,9 +399,9 @@ test("CLI check can ignore an existing baseline", () => {
 
 test("CLI check ignores invalid baseline JSON", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-invalid-baseline-fixture",
+    "pi-rindaman-invalid-baseline-fixture",
     {
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           types: false,
@@ -411,8 +411,8 @@ test("CLI check ignores invalid baseline JSON", () => {
       },
     },
   );
-  mkdirSync(resolve(fixtureDirectory, ".rindaman"), { recursive: true });
-  writeFileSync(resolve(fixtureDirectory, ".rindaman", "baseline.json"), "not json\n");
+  mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
+  writeFileSync(resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"), "not json\n");
 
   const result = runCli(["check", "--json"], fixtureDirectory);
 
@@ -446,21 +446,21 @@ test("CLI check can target a workspace by path", () => {
   assert.equal(result.status, 1);
   const output = parseJsonOutput(result);
 
-  assert.equal(output.workspace.name, "@rindaman/api");
+  assert.equal(output.workspace.name, "@pi-rindaman/api");
   assert.equal(output.workspace.path, "packages/api");
   assert.equal(output.debt.mode, "all");
 });
 
 test("CLI check can target a workspace by package name", () => {
   const result = runCli(
-    ["check", "--json", "--workspace", "@rindaman/web"],
+    ["check", "--json", "--workspace", "@pi-rindaman/web"],
     monorepoFixtureDirectory,
   );
 
   assert.equal(result.status, 0);
   const output = parseJsonOutput(result);
 
-  assert.equal(output.workspace.name, "@rindaman/web");
+  assert.equal(output.workspace.name, "@pi-rindaman/web");
   assert.equal(output.workspace.path, "apps/web");
 });
 
@@ -479,7 +479,7 @@ test("CLI check can run all workspaces", () => {
 });
 
 test("CLI baseline writes workspace-local baselines", () => {
-  rmSync(resolve(monorepoFixtureDirectory, "packages", "api", ".rindaman"), {
+  rmSync(resolve(monorepoFixtureDirectory, "packages", "api", ".pi-rindaman"), {
     force: true,
     recursive: true,
   });
@@ -492,9 +492,9 @@ test("CLI baseline writes workspace-local baselines", () => {
   const output = parseJsonOutput(result);
 
   assert.equal(output.workspace.path, "packages/api");
-  assert.match(output.baseline.path, /packages[\\/]api[\\/]\.rindaman[\\/]baseline\.json$/);
+  assert.match(output.baseline.path, /packages[\\/]api[\\/]\.pi-rindaman[\\/]baseline\.json$/);
   assert.deepEqual(output.baseline.checkNames, ["types"]);
-  rmSync(resolve(monorepoFixtureDirectory, "packages", "api", ".rindaman"), {
+  rmSync(resolve(monorepoFixtureDirectory, "packages", "api", ".pi-rindaman"), {
     force: true,
     recursive: true,
   });
@@ -518,7 +518,7 @@ test("CLI audit reports unknown debt without failing", () => {
 
 test("CLI doctor reports missing package.json", () => {
   const fixtureDirectory = createTemporaryGitBoundary(
-    "rindaman-missing-package-fixture",
+    "pi-rindaman-missing-package-fixture",
   );
   const result = runCli(["doctor", "--json"], fixtureDirectory);
 
@@ -543,9 +543,9 @@ test("CLI check does not crash outside a git repo", () => {
 
 test("CLI security check skips when no lockfile exists", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-skip-fixture",
+    "pi-rindaman-security-skip-fixture",
     {
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           types: false,
@@ -568,9 +568,9 @@ test("CLI security check skips when no lockfile exists", () => {
 
 test("CLI security check summarizes severity counts", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-summary-fixture",
+    "pi-rindaman-security-summary-fixture",
     {
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           types: false,
@@ -605,9 +605,9 @@ test("CLI security check summarizes severity counts", () => {
 
 test("CLI security check does not block on moderate-only by default", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-moderate-fixture",
+    "pi-rindaman-security-moderate-fixture",
     {
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           types: false,
@@ -637,9 +637,9 @@ test("CLI security check does not block on moderate-only by default", () => {
 
 test("CLI security config can block on moderate vulnerabilities", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-security-fail-moderate-fixture",
+    "pi-rindaman-security-fail-moderate-fixture",
     {
-      rindaman: {
+      "pi-rindaman": {
         checks: {
           semantic: false,
           types: false,
@@ -674,7 +674,7 @@ test("CLI security config can block on moderate vulnerabilities", () => {
 
 test("CLI check treats skipped local tools as warnings by default", () => {
   const fixtureDirectory = writeTemporaryJsonFixture(
-    "rindaman-skipped-tools-fixture",
+    "pi-rindaman-skipped-tools-fixture",
     {},
   );
   const result = runCli(["check", "--json"], fixtureDirectory);
@@ -727,7 +727,7 @@ test("CLI config precedence applies defaults, package config, file config, then 
       "--all",
       "--strict",
       "--report-path",
-      ".rindaman/from-flag.md",
+      ".pi-rindaman/from-flag.md",
     ],
     configPrecedenceFixtureDirectory,
   );

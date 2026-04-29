@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add final-response gate metadata to Rindaman's OpenCode plugin status and check tools.
+**Goal:** Add final-response gate metadata to pi-rindaman's OpenCode plugin status and check tools.
 
-**Architecture:** Keep state in `src/index.ts`, add a pure final-response gate evaluator, update `rindaman_check` and `rindaman_status`, and strengthen `src/rindaman-rule.ts`. Extend `test/plugin.test.mjs` using existing plugin test patterns.
+**Architecture:** Keep state in `src/index.ts`, add a pure final-response gate evaluator, update `pi_rindaman_check` and `pi_rindaman_status`, and strengthen `src/pi-rindaman-rule.ts`. Extend `test/plugin.test.mjs` using existing plugin test patterns.
 
 **Tech Stack:** TypeScript OpenCode plugin, Node `node:test`, built package tests through `dist`.
 
@@ -13,7 +13,7 @@
 ## File Structure
 
 - Modify: `src/index.ts` for gate metadata, status output, and check status handling.
-- Modify: `src/rindaman-rule.ts` for stronger final-response rules.
+- Modify: `src/pi-rindaman-rule.ts` for stronger final-response rules.
 - Modify: `test/plugin.test.mjs` for plugin enforcement tests.
 - Modify: `README.md` for plugin status behavior docs.
 
@@ -39,15 +39,15 @@ Add after `createToolContext`:
 
 ```js
 const readStatus = async (hooks, context) =>
-  JSON.parse(await hooks.tool.rindaman_status.execute({}, context));
+  JSON.parse(await hooks.tool.pi_rindaman_status.execute({}, context));
 ```
 
 - [ ] **Step 3: Add final response metadata test**
 
-Add after `exposes Rindaman quality tools`:
+Add after `exposes pi-rindaman quality tools`:
 
 ```js
-test("rindaman_status exposes final response gate metadata", async () => {
+test("pi_rindaman_status exposes final response gate metadata", async () => {
   const hooks = await server();
   const context = createToolContext();
   const status = await readStatus(hooks, context);
@@ -88,7 +88,7 @@ Add after `getSessionState`:
 
 ```ts
 const isVerificationRequired = (
-  resolvedOptions: RindamanResolvedOptions,
+  resolvedOptions: pi-rindamanResolvedOptions,
   sessionState: SessionQualityState,
 ) =>
   resolvedOptions.verificationRequired && sessionState.changedFiles.length > 0;
@@ -100,7 +100,7 @@ Add after `isVerificationRequired`:
 
 ```ts
 const createFinalResponseGate = (
-  resolvedOptions: RindamanResolvedOptions,
+  resolvedOptions: pi-rindamanResolvedOptions,
   sessionState: SessionQualityState,
 ): FinalResponseGate => {
   if (!resolvedOptions.enabled) {
@@ -133,7 +133,7 @@ const createFinalResponseGate = (
 
 - [ ] **Step 4: Update status output shape**
 
-In `createRindamanStatusTool`, compute:
+In `createpi-rindamanStatusTool`, compute:
 
 ```ts
       const verificationRequired = isVerificationRequired(
@@ -231,11 +231,11 @@ Expected: dirty and bypass tests pass.
 Add after dirty session test:
 
 ```js
-test("failed rindaman_check keeps final response blocked", async () => {
+test("failed pi_rindaman_check keeps final response blocked", async () => {
   const hooks = await server();
   const context = createToolContext({ directory: "/path/that/does/not/exist" });
 
-  await hooks.rindaman_check?.execute({ mode: "check", json: true, strict: false, report: false }, context);
+  await hooks.pi_rindaman_check?.execute({ mode: "check", json: true, strict: false, report: false }, context);
   const status = await readStatus(hooks, context);
 
   assert.equal(status.lastCheck.status, "failed");
@@ -249,7 +249,7 @@ test("failed rindaman_check keeps final response blocked", async () => {
 Add after failed check test:
 
 ```js
-test("passing rindaman_check allows final response", async () => {
+test("passing pi_rindaman_check allows final response", async () => {
   const hooks = await server();
   const context = createToolContext();
 
@@ -257,7 +257,7 @@ test("passing rindaman_check allows final response", async () => {
     { sessionID: context.sessionID, tool: "edit" },
     { output: "README.md" },
   );
-  await hooks.tool.rindaman_check.execute(
+  await hooks.tool.pi_rindaman_check.execute(
     { mode: "doctor", json: true, strict: false, report: false },
     context,
   );
@@ -271,7 +271,7 @@ test("passing rindaman_check allows final response", async () => {
 
 - [ ] **Step 3: Ensure check execution error is marked failed or error**
 
-In `createRindamanCheckTool`, set status:
+In `createpi-rindamanCheckTool`, set status:
 
 ```ts
       sessionState.lastCheckStatus = result.error
@@ -313,20 +313,20 @@ Expected: check gate tests pass.
 ## Task 5: Strengthen Rule Text and Docs
 
 **Files:**
-- Modify: `src/rindaman-rule.ts`
+- Modify: `src/pi-rindaman-rule.ts`
 - Modify: `README.md`
 
 - [ ] **Step 1: Update final response rule text**
 
-In `src/rindaman-rule.ts`, replace the `Final response:` section with:
+In `src/pi-rindaman-rule.ts`, replace the `Final response:` section with:
 
 ```ts
 Final response:
 - Summarize changed files.
 - List verification commands run and results.
 - List remaining risks or skipped checks.
-- If verification is required and no passing rindaman_check exists, explicitly state verification is pending or failed.
-- Do not imply completion when rindaman_status.finalResponse.allowed is false.
+- If verification is required and no passing pi_rindaman_check exists, explicitly state verification is pending or failed.
+- Do not imply completion when pi_rindaman_status.finalResponse.allowed is false.
 ```
 
 - [ ] **Step 2: Update README tool docs**
@@ -334,7 +334,7 @@ Final response:
 In README near the OpenCode tools section, add:
 
 ```md
-`rindaman_status` includes `finalResponse.allowed` and `finalResponse.reason` so the assistant can avoid false completion claims when verification is pending or failed.
+`pi_rindaman_status` includes `finalResponse.allowed` and `finalResponse.reason` so the assistant can avoid false completion claims when verification is pending or failed.
 ```
 
 - [ ] **Step 3: Run plugin tests**
@@ -362,7 +362,7 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Run doctor JSON**
 
-Run: `node bin/rindaman.cjs doctor --json`
+Run: `node bin/pi-rindaman.cjs doctor --json`
 
 Expected: JSON output with `status` equal to `passed`.
 

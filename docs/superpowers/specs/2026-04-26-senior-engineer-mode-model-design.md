@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Rindaman now supports an optional senior fullstack guidance layer, but its current activation model is not explicit enough. Users and maintainers need to know whether the plugin is in core-only mode, senior-guidance mode, or automatic mode, and why.
+pi-rindaman now supports an optional senior fullstack guidance layer, but its current activation model is not explicit enough. Users and maintainers need to know whether the plugin is in core-only mode, senior-guidance mode, or automatic mode, and why.
 
 This increment adds explicit mode semantics and status reporting.
 
@@ -21,9 +21,9 @@ Control should be available through:
 
 Recommended chat commands:
 
-- `/rindaman mode core`
-- `/rindaman mode senior`
-- `/rindaman mode auto`
+- `/pi-rindaman mode core`
+- `/pi-rindaman mode senior`
+- `/pi-rindaman mode auto`
 
 Recommended config option:
 
@@ -78,7 +78,7 @@ The plugin should compute:
 3. Plugin computes the effective mode.
 4. If effective mode is `auto`, plugin evaluates task intent.
 5. Plugin injects rules accordingly.
-6. `rindaman_status` reports the effective mode and senior guidance activation details.
+6. `pi_rindaman_status` reports the effective mode and senior guidance activation details.
 
 ## Error Handling
 
@@ -98,13 +98,13 @@ Add coverage for:
 - session command override from auto to core
 - session command override from auto to senior
 - session command override back to auto
-- `rindaman_status` reports `mode`, `reason`, and `intent`
+- `pi_rindaman_status` reports `mode`, `reason`, and `intent`
 
 Verification commands:
 
 - `npm run build`
 - `npm test`
-- `node bin/rindaman.cjs doctor --json`
+- `node bin/pi-rindaman.cjs doctor --json`
 - `npm pack --dry-run`
 
 ## Success Criteria
