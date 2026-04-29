@@ -2,6 +2,8 @@
 
 Pi package and CLI for strict response discipline, lifecycle verification, and project quality checks.
 
+![pi-rindaman](./pi-rindaman.png)
+
 ## What this package is
 
 `pi-rindaman` is now a Pi-first package.
