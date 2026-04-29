@@ -1,10 +1,11 @@
 {
-  "name": "rindaman",
+  "name": "pi-rindaman",
   "version": "1.0.0",
   "description": "Pi package and CLI for strict response discipline, lifecycle verification, and quality checks.",
   "type": "module",
   "bin": {
-    "rindaman": "bin/rindaman.cjs"
+    "pi-rindaman": "bin/pi-rindaman.cjs",
+    "rindaman": "bin/pi-rindaman.cjs"
   },
   "sideEffects": false,
   "files": [
@@ -20,9 +21,9 @@
     "build": "node -e \"console.log('No build step required for Pi runtime-loaded extensions.')\"",
     "clean": "node -e \"console.log('Nothing to clean.')\"",
     "typecheck": "node -e \"console.log('No standalone typecheck step configured.')\"",
-    "check": "node bin/rindaman.cjs",
-    "doctor": "node bin/rindaman.cjs doctor",
-    "release:check": "npm run typecheck && npm run build && npm test && node bin/rindaman.cjs doctor --json && npm pack --dry-run",
+    "check": "node bin/pi-rindaman.cjs",
+    "doctor": "node bin/pi-rindaman.cjs doctor",
+    "release:check": "npm run typecheck && npm run build && npm test && node bin/pi-rindaman.cjs doctor --json && npm pack --dry-run",
     "release:pack": "npm pack",
     "test": "node --test"
   },

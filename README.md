@@ -9,7 +9,7 @@ Pi package and CLI for strict response discipline, lifecycle verification, and p
 It provides:
 - a Pi extension at `extensions/rindaman.ts`
 - a Pi skill at `skills/rindaman/SKILL.md`
-- a local CLI at `bin/rindaman.cjs`
+- a local CLI at `bin/pi-rindaman.cjs`
 
 This repository no longer presents the legacy plugin runtime as a public surface.
 
@@ -98,11 +98,17 @@ When code changed:
 Run from the project root:
 
 ```bash
+pi-rindaman
+pi-rindaman check --json
+pi-rindaman audit --json
+pi-rindaman baseline --json
+pi-rindaman doctor --json
+```
+
+Legacy alias still works:
+
+```bash
 rindaman
-rindaman check --json
-rindaman audit --json
-rindaman baseline --json
-rindaman doctor --json
 ```
 
 ## Development

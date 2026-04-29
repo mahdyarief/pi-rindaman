@@ -2,7 +2,7 @@
 
 ## Identity
 
-Rindaman is a Pi package with a companion local CLI.
+pi-rindaman is a Pi package with a companion local CLI.
 
 It combines:
 - core governance and verification

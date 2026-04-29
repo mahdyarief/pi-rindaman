@@ -97,7 +97,7 @@ const ARCHITECTURE_SIGNALS = [
 const GOVERNANCE_SIGNALS = ["review", "status", "release", "verify", "push", "commit", "doctor"]
 const REVIEW_SIGNALS = ["review", "audit", "inspect", "find issues", "risks", "regression"]
 
-const cliPath = () => resolve(process.cwd(), "bin", "rindaman.cjs")
+const cliPath = () => resolve(process.cwd(), "bin", "pi-rindaman.cjs")
 
 const sessionStates = new Map<string, SessionQualityState>()
 const sessionEnabledStates = new Map<string, boolean>()

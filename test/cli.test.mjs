@@ -8,7 +8,7 @@ import test from "node:test";
 
 const testDirectory = dirname(fileURLToPath(import.meta.url));
 const packageDirectory = resolve(testDirectory, "..");
-const cliPath = resolve(packageDirectory, "bin", "rindaman.cjs");
+const cliPath = resolve(packageDirectory, "bin", "pi-rindaman.cjs");
 const minimalFixtureDirectory = resolve(
   testDirectory,
   "fixtures",

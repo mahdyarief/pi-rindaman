@@ -70,10 +70,16 @@ If verification is still pending or failed, say so explicitly.
 From the project root, the CLI can also be run directly:
 
 ```bash
+pi-rindaman
+pi-rindaman check --json
+pi-rindaman audit --json
+pi-rindaman doctor --json
+```
+
+Legacy alias also works:
+
+```bash
 rindaman
-rindaman check --json
-rindaman audit --json
-rindaman doctor --json
 ```
 
 ## Package install
@@ -81,7 +87,7 @@ rindaman doctor --json
 Install as a Pi user package:
 
 ```bash
-pi install git:github.com/mahdyarief/rindaman
+pi install git:github.com/mahdyarief/pi-rindaman
 ```
 
 Local checkout install also works:

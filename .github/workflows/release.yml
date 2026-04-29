@@ -29,7 +29,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
-      - run: node bin/rindaman.cjs doctor --json
+      - run: node bin/pi-rindaman.cjs doctor --json
       - run: npm pack
 
       - name: Create GitHub release
