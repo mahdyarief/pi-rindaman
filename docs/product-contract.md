@@ -2,12 +2,37 @@
 
 ## Identity
 
-Rindaman is a GitHub/local OpenCode plugin that combines:
+Rindaman is a Pi package with a companion local CLI.
 
+It combines:
 - core governance and verification
 - optional senior-engineer implementation guidance
 - optional reviewer guidance
 - CLI-backed quality, debt, baseline, workspace, and security checks
+
+## Pi Surfaces
+
+### Extension
+
+The package provides a Pi extension that adds:
+- session toggles
+- mode commands
+- `rindaman_check`
+- `rindaman_status`
+- verification-aware session behavior
+
+### Skill
+
+The package provides a Pi skill:
+- `/skill:rindaman`
+
+### CLI
+
+The package provides these stable CLI surfaces:
+- `check`
+- `audit`
+- `baseline`
+- `doctor`
 
 ## Layers
 
@@ -25,27 +50,12 @@ Core is always active when Rindaman is enabled. Senior Engineer and Reviewer are
 - `auto`
 
 Mode precedence:
-
 1. session override command
-2. configured plugin mode
-3. default `auto`
-
-## Plugin Tools
-
-- `rindaman_check`
-- `rindaman_status`
-
-## CLI Surfaces
-
-- `check`
-- `audit`
-- `baseline`
-- `doctor`
+2. default `auto`
 
 ## Status Contract
 
 Canonical status concepts:
-
 - `mode`
 - `secondaryLayer`
 - `verificationRequired`
@@ -58,11 +68,11 @@ Canonical status concepts:
 
 ### Stable
 
-- plugin id
 - tool names
 - mode names
 - top-level CLI commands
 - top-level `rindaman_status` contract semantics
+- Pi command names documented in README
 
 ### Experimental
 

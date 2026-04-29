@@ -403,7 +403,7 @@ function runDoctorCommand() {
 function printHelp() {
   console.log(
     [
-      "Rindaman - OpenCode strict quality governor",
+      "Rindaman - Pi package strict quality governor",
       "",
       "Usage:",
       "  rindaman check [--json] [--include-output] [--strict] [--changed-only] [--all] [--report]",

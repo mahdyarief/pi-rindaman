@@ -1,36 +1,25 @@
 {
   "name": "rindaman",
   "version": "1.0.0",
-  "description": "OpenCode plugin and Pi package for strict response discipline, lifecycle verification, and quality checks.",
+  "description": "Pi package and CLI for strict response discipline, lifecycle verification, and quality checks.",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "bin": {
     "rindaman": "bin/rindaman.cjs"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
   },
   "sideEffects": false,
   "files": [
     "bin",
-    "dist",
     "extensions",
     "skills",
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
-    "SKILL.md",
-    "src/quality-engine",
-    "opencode.example.json"
+    "src/quality-engine"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "node -e \"console.log('No build step required for Pi runtime-loaded extensions.')\"",
+    "clean": "node -e \"console.log('Nothing to clean.')\"",
+    "typecheck": "node -e \"console.log('No standalone typecheck step configured.')\"",
     "check": "node bin/rindaman.cjs",
     "doctor": "node bin/rindaman.cjs doctor",
     "release:check": "npm run typecheck && npm run build && npm test && node bin/rindaman.cjs doctor --json && npm pack --dry-run",
@@ -38,9 +27,8 @@
     "test": "node --test"
   },
   "keywords": [
-    "opencode",
-    "plugin",
     "pi-package",
+    "pi-extension",
     "pi-skill",
     "quality",
     "code-quality",
@@ -51,17 +39,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mahdyarief/rindaman.git"
+    "url": "git+https://github.com/mahdyarief/pi-rindaman.git"
   },
   "bugs": {
-    "url": "https://github.com/mahdyarief/rindaman/issues"
+    "url": "https://github.com/mahdyarief/pi-rindaman/issues"
   },
-  "homepage": "https://github.com/mahdyarief/rindaman#readme",
+  "homepage": "https://github.com/mahdyarief/pi-rindaman#readme",
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "@opencode-ai/plugin": "^1.4.7"
   },
   "devDependencies": {
     "@types/node": "^22.15.29",
