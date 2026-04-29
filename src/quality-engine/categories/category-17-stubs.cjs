@@ -24,5 +24,5 @@ module.exports = {
       });
     }
     if (stubClean) reporter.pass("No stub/placeholder function bodies found.");
-  }
+  },
 };

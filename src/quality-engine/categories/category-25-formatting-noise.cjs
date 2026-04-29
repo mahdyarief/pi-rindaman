@@ -23,13 +23,13 @@ module.exports = {
   run(context, reporter) {
     const filesFilter = context.isExplicit ? `-- ${context.changedFiles.join(" ")}` : "";
     const fullStat = run(`git diff main --shortstat ${filesFilter}`);
-    const nwStat   = run(`git diff main -w --shortstat ${filesFilter}`); // -w = ignore all whitespace
+    const nwStat = run(`git diff main -w --shortstat ${filesFilter}`); // -w = ignore all whitespace
 
     const full = parseShortstat(fullStat);
-    const nw   = parseShortstat(nwStat);
+    const nw = parseShortstat(nwStat);
 
     const fullTotal = full.insertions + full.deletions;
-    const nwTotal   = nw.insertions   + nw.deletions;
+    const nwTotal = nw.insertions + nw.deletions;
 
     if (fullTotal < MIN_LINES_FOR_RATIO) {
       reporter.pass(`Diff is small (${fullTotal} lines) — formatting noise check skipped.`);
@@ -42,27 +42,29 @@ module.exports = {
     if (realRatio < NOISE_RATIO_THRESHOLD) {
       reporter.fail(
         `Formatting noise: ${noisePercent}% of the diff is whitespace/indentation churn ` +
-        `(${fullTotal} total lines, only ${nwTotal} survive -w). ` +
-        `Revert indentation changes and rebase — do not ship formatting as a feature.`
+          `(${fullTotal} total lines, only ${nwTotal} survive -w). ` +
+          `Revert indentation changes and rebase — do not ship formatting as a feature.`,
       );
       return;
     }
 
     // Secondary check: warn if import-only lines dominate the diff
     const importFilter = context.isExplicit ? context.tsFiles.join(" ") : "'*.ts' '*.tsx'";
-    const importLines = run(`git diff main -U0 -- ${importFilter} | grep -cE '^[+-]import ' || true`);
+    const importLines = run(
+      `git diff main -U0 -- ${importFilter} | grep -cE '^[+-]import ' || true`,
+    );
     const importCount = parseInt(importLines, 10) || 0;
     if (importCount > 30) {
       reporter.warn(
         `${importCount} import lines changed — verify these are not just reorder churn. ` +
-        `Import reordering without logic change belongs in a dedicated chore commit, not a feature PR.`
+          `Import reordering without logic change belongs in a dedicated chore commit, not a feature PR.`,
       );
     } else {
       reporter.pass(`Import churn within acceptable range (${importCount} import lines changed).`);
     }
 
     reporter.pass(
-      `Formatting noise ratio OK: ${noisePercent}% whitespace (${fullTotal} total → ${nwTotal} real lines).`
+      `Formatting noise ratio OK: ${noisePercent}% whitespace (${fullTotal} total → ${nwTotal} real lines).`,
     );
   },
 };

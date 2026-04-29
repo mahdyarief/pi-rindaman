@@ -133,12 +133,34 @@ pi-rindaman baseline --json
 pi-rindaman doctor --json
 ```
 
+Target an explicit repo root from another directory:
+
+```bash
+pi-rindaman check --json --project-root /path/to/project
+pi-rindaman doctor --json --project-root /path/to/project
+```
+
 ## Development
 
 ```bash
 npm install
 npm test
+npm run format:check
+npm run knip
 ```
+
+## Release verification
+
+```bash
+npm run release:check
+```
+
+This now verifies:
+- tests
+- package doctor
+- package-wide `check --json --all`
+- package-wide `audit --json --all`
+- npm pack dry-run output
 
 ## Package structure
 

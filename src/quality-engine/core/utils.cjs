@@ -26,5 +26,5 @@ module.exports = {
   RESET,
   BOLD,
   DIM,
-  run
+  run,
 };

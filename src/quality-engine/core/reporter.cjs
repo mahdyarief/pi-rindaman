@@ -114,8 +114,7 @@ class Reporter {
     if (this.reportLines.tolerable.length === 0) {
       md += "None detected. ✅\n";
     } else {
-      md +=
-        "<details>\n<summary>Click to view tolerable architectural debt</summary>\n\n";
+      md += "<details>\n<summary>Click to view tolerable architectural debt</summary>\n\n";
       for (const issue of this.reportLines.tolerable) {
         md += `- **${issue.msg}**\n`;
         for (const n of issue.notes) md += `  - ${n}\n`;
@@ -137,11 +136,7 @@ class Reporter {
     } else if (this.issues.yellow > 500) {
       md +=
         "\n> [!CAUTION]\n> **DEBT LIMIT EXCEEDED.** Fix yellow issues to bring debt under control.\n";
-    } else if (
-      this.issues.yellow > 0 ||
-      this.archIssues.god > 0 ||
-      this.archIssues.bloated > 0
-    ) {
+    } else if (this.issues.yellow > 0 || this.archIssues.god > 0 || this.archIssues.bloated > 0) {
       md +=
         "\n> [!WARNING]\n> **REVIEW RECOMMENDED.** Review yellow warnings and architectural debt. Choose structural improvements wisely.\n";
     } else {

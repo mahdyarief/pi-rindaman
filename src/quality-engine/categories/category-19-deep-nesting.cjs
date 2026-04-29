@@ -11,7 +11,7 @@ module.exports = {
     const tsKeywords = /^\s*(if|else\s+if|for|while|switch|try)\b/;
     const goKeywords = /^\s*(if|else\s+if|for|switch|select)\b/;
     const JSX_LINE = /^\s*(<\/?[A-Za-z][A-Za-z0-9.]*|<>|<\/>|\/>|^\s*\);\s*$)/;
-    
+
     const THRESHOLD = 4;
     let clean = true;
 
@@ -19,10 +19,12 @@ module.exports = {
       const isTsx = file.endsWith(".tsx");
       const isGo = file.endsWith(".go");
       const keywords = isGo ? goKeywords : tsKeywords;
-      
+
       const lines = fs.readFileSync(file, "utf8").split("\n");
 
-      let logicDepth = 0, peakLogicDepth = 0, peakLine = 0;
+      let logicDepth = 0,
+        peakLogicDepth = 0,
+        peakLine = 0;
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];

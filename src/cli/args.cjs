@@ -4,15 +4,10 @@ function createCliArgs(rawArgs) {
   const firstArg = rawArgs[0];
   const command = firstArg && KNOWN_COMMANDS.has(firstArg) ? firstArg : "check";
   const commandArgs =
-    command === "check" &&
-    firstArg &&
-    !firstArg.startsWith("--") &&
-    !KNOWN_COMMANDS.has(firstArg)
+    command === "check" && firstArg && !firstArg.startsWith("--") && !KNOWN_COMMANDS.has(firstArg)
       ? rawArgs
       : rawArgs.slice(command === "check" && firstArg !== "check" ? 0 : 1);
-  const flags = new Set(
-    commandArgs.filter((argument) => argument.startsWith("--")),
-  );
+  const flags = new Set(commandArgs.filter((argument) => argument.startsWith("--")));
 
   return {
     rawArgs,
@@ -51,6 +46,10 @@ function readWorkspaceTarget(commandArgs) {
   return readFlagValue(commandArgs, "--workspace");
 }
 
+function readProjectRootFlag(commandArgs) {
+  return readFlagValue(commandArgs, "--project-root");
+}
+
 function shouldRunAllWorkspaces(flags) {
   return flags.has("--workspaces");
 }
@@ -60,5 +59,6 @@ module.exports = {
   readFlagValue,
   readDebtModeFlag,
   readWorkspaceTarget,
+  readProjectRootFlag,
   shouldRunAllWorkspaces,
 };

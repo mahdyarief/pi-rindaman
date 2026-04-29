@@ -14,15 +14,18 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
+    "src/cli",
     "src/quality-engine"
   ],
   "scripts": {
     "build": "node -e \"console.log('No build step required for Pi runtime-loaded extensions.')\"",
     "clean": "node -e \"console.log('Nothing to clean.')\"",
-    "typecheck": "node -e \"console.log('No standalone typecheck step configured.')\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "format:check": "biome check .",
+    "knip": "knip --reporter compact",
     "check": "node bin/pi-rindaman.cjs",
     "doctor": "node bin/pi-rindaman.cjs doctor",
-    "release:check": "npm run typecheck && npm run build && npm test && node bin/pi-rindaman.cjs doctor --json && npm pack --dry-run",
+    "release:check": "npm run typecheck && npm run build && npm run format:check && npm run knip && npm test && node bin/pi-rindaman.cjs doctor --json && node bin/pi-rindaman.cjs check --json --all && node bin/pi-rindaman.cjs audit --json --all && npm pack --dry-run --json",
     "release:pack": "npm pack",
     "test": "node --test"
   },
@@ -49,17 +52,15 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@sinclair/typebox": "^0.34.41",
     "@types/node": "^22.15.29",
+    "knip": "^5.61.3",
     "typescript": "^5.8.2"
   },
   "pi": {
-    "extensions": [
-      "extensions/pi-rindaman.ts"
-    ],
-    "skills": [
-      "skills"
-    ]
+    "extensions": ["extensions/pi-rindaman.ts"],
+    "skills": ["skills"]
   },
   "peerDependencies": {
     "@mariozechner/pi-ai": "*",

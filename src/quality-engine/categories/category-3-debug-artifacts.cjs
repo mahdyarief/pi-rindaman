@@ -10,7 +10,7 @@ module.exports = {
       { regex: /\/\/\s*FIXME/i, label: "FIXME" },
       { regex: /debugger;/, label: "debugger" },
     ];
-    
+
     const goPatterns = [
       { regex: /\bfmt\.Print(ln|f)?\(/, label: "fmt.Print*" },
       { regex: /\blogger\.Debug(f)?\(/, label: "logger.Debug*" },
@@ -22,7 +22,7 @@ module.exports = {
     for (const file of context.sourceFiles) {
       const isGo = file.endsWith(".go");
       const patterns = isGo ? goPatterns : tsPatterns;
-      
+
       const lines = fs.readFileSync(file, "utf8").split("\n");
       lines.forEach((line, i) => {
         for (const { regex, label } of patterns) {
@@ -35,5 +35,5 @@ module.exports = {
       });
     }
     if (clean) reporter.pass("No debug artifacts found.");
-  }
+  },
 };

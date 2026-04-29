@@ -14,39 +14,55 @@ function getWindowsCommandName(commandName) {
   return commandName;
 }
 
+function quoteWindowsArgument(argument) {
+  if (/^[A-Za-z0-9_./:=+\\-]+$/.test(argument)) {
+    return argument;
+  }
+
+  return `"${argument.replace(/"/g, '""')}"`;
+}
+
+function createSpawnSpec(commandName, args) {
+  const finalCommandName = getWindowsCommandName(commandName);
+
+  if (process.platform === "win32" && finalCommandName.endsWith(".cmd")) {
+    const comspec = process.env.ComSpec ?? "cmd.exe";
+    const windowsCommand = [
+      quoteWindowsArgument(finalCommandName),
+      ...args.map(quoteWindowsArgument),
+    ].join(" ");
+
+    return {
+      file: comspec,
+      args: ["/d", "/s", "/c", windowsCommand],
+      displayCommand: [commandName, ...args].join(" "),
+    };
+  }
+
+  return {
+    file: finalCommandName,
+    args,
+    displayCommand: [commandName, ...args].join(" "),
+  };
+}
+
 function executeCommand(commandName, args, options = {}) {
   const startTime = Date.now();
-  const finalCommandName = getWindowsCommandName(commandName);
-  const needsWindowsShell =
-    process.platform === "win32" && finalCommandName.endsWith(".cmd");
-  let result = spawnSync(finalCommandName, args, {
+  const spawnSpec = createSpawnSpec(commandName, args);
+  const result = spawnSync(spawnSpec.file, spawnSpec.args, {
     cwd: options.cwd ?? process.cwd(),
     encoding: "utf8",
     stdio: options.inherit ? "inherit" : "pipe",
-    shell: needsWindowsShell,
     env: {
       ...process.env,
       ...(options.env ?? {}),
     },
   });
 
-  if (result.error?.code === "ENOENT" && process.platform === "win32") {
-    result = spawnSync(commandName, args, {
-      cwd: options.cwd ?? process.cwd(),
-      encoding: "utf8",
-      stdio: options.inherit ? "inherit" : "pipe",
-      env: {
-        ...process.env,
-        ...(options.env ?? {}),
-      },
-      shell: true,
-    });
-  }
-
   return {
     result,
     durationMs: Date.now() - startTime,
-    command: [commandName, ...args].join(" "),
+    command: spawnSpec.displayCommand,
   };
 }
 
@@ -68,12 +84,7 @@ function detectPackageManager(projectRoot) {
 
 function getLocalBinaryPath(projectRoot, binaryName) {
   const extension = process.platform === "win32" ? ".cmd" : "";
-  return path.join(
-    projectRoot,
-    "node_modules",
-    ".bin",
-    `${binaryName}${extension}`,
-  );
+  return path.join(projectRoot, "node_modules", ".bin", `${binaryName}${extension}`);
 }
 
 function executeLocalBinary(projectRoot, binaryName, args, inherit) {
@@ -147,14 +158,10 @@ function executePackageScript(projectRoot, packageManager, scriptName, inherit, 
   }
 
   const scriptCommand = getPackageScriptCommand(packageManager, scriptName);
-  const executedCommand = executeCommand(
-    scriptCommand.commandName,
-    scriptCommand.args,
-    {
-      cwd: projectRoot,
-      inherit,
-    },
-  );
+  const executedCommand = executeCommand(scriptCommand.commandName, scriptCommand.args, {
+    cwd: projectRoot,
+    inherit,
+  });
 
   return {
     status: executedCommand.result.status === 0 ? "passed" : "failed",
@@ -185,13 +192,7 @@ function detectBaseRef(projectRoot, config) {
     return config.baseRef;
   }
 
-  const candidateRefs = [
-    "upstream/main",
-    "origin/main",
-    "main",
-    "master",
-    "HEAD",
-  ];
+  const candidateRefs = ["upstream/main", "origin/main", "main", "master", "HEAD"];
 
   for (const candidateRef of candidateRefs) {
     if (readGitOutput(projectRoot, ["rev-parse", "--verify", candidateRef])) {
@@ -285,13 +286,10 @@ function filterIgnoredFiles(files, ignorePatterns, normalizePathForMatch) {
   );
 }
 
-function detectFormatter(projectRoot, readJsonFile) {
-  if (
+function getFormatterConfigPresence(projectRoot, readJsonFile) {
+  const hasBiome =
     fs.existsSync(path.join(projectRoot, "biome.json")) ||
-    fs.existsSync(path.join(projectRoot, "biome.jsonc"))
-  ) {
-    return "biome";
-  }
+    fs.existsSync(path.join(projectRoot, "biome.jsonc"));
 
   const prettierConfigFiles = [
     ".prettierrc",
@@ -303,22 +301,39 @@ function detectFormatter(projectRoot, readJsonFile) {
     "prettier.config.cjs",
     "prettier.config.mjs",
   ];
+  const packageJson = readJsonFile(path.join(projectRoot, "package.json"));
+  const hasPrettier =
+    prettierConfigFiles.some((configFile) => fs.existsSync(path.join(projectRoot, configFile))) ||
+    Boolean(packageJson?.prettier);
 
-  if (
-    prettierConfigFiles.some((configFile) =>
-      fs.existsSync(path.join(projectRoot, configFile)),
-    )
-  ) {
-    return "prettier";
+  return {
+    biome: hasBiome,
+    prettier: hasPrettier,
+  };
+}
+
+function detectFormatter(projectRoot, readJsonFile) {
+  const configPresence = getFormatterConfigPresence(projectRoot, readJsonFile);
+
+  if (configPresence.biome) {
+    return "biome";
   }
 
-  const packageJson = readJsonFile(path.join(projectRoot, "package.json"));
-
-  if (packageJson?.prettier) {
+  if (configPresence.prettier) {
     return "prettier";
   }
 
   return undefined;
+}
+
+function getQualityConfigFiles(projectRoot, readJsonFile) {
+  const formatterConfigPresence = getFormatterConfigPresence(projectRoot, readJsonFile);
+
+  return {
+    biome: formatterConfigPresence.biome,
+    prettier: formatterConfigPresence.prettier,
+    knip: fs.existsSync(path.join(projectRoot, "knip.json")),
+  };
 }
 
 function createSkippedCheck(name, reason, severity = "warning") {
@@ -340,15 +355,10 @@ function createCheckResult(name, checkResult, flags) {
     severity: checkResult.severity,
     command: checkResult.command ?? null,
     reason: checkResult.reason ?? null,
-    exitCode:
-      typeof checkResult.exitCode === "number" ? checkResult.exitCode : null,
+    exitCode: typeof checkResult.exitCode === "number" ? checkResult.exitCode : null,
     durationMs: checkResult.durationMs ?? 0,
-    stdout: flags.has("--include-output")
-      ? (checkResult.stdout ?? "")
-      : undefined,
-    stderr: flags.has("--include-output")
-      ? (checkResult.stderr ?? "")
-      : undefined,
+    stdout: flags.has("--include-output") ? (checkResult.stdout ?? "") : undefined,
+    stderr: flags.has("--include-output") ? (checkResult.stderr ?? "") : undefined,
     summary: checkResult.summary ?? undefined,
   };
 }
@@ -423,12 +433,7 @@ function runSecurityCheck(projectRoot, inherit) {
 }
 
 function runSemanticCheck(projectRoot, targetFiles, config, inherit) {
-  const enginePath = path.resolve(
-    __dirname,
-    "..",
-    "quality-engine",
-    "engine.cjs",
-  );
+  const enginePath = path.resolve(__dirname, "..", "quality-engine", "engine.cjs");
 
   if (!fs.existsSync(enginePath)) {
     return {
@@ -463,24 +468,15 @@ function runSemanticCheck(projectRoot, targetFiles, config, inherit) {
 }
 
 function runTypeCheck(projectRoot, packageManager, inherit, readJsonFile) {
-  return executePackageScript(
-    projectRoot,
-    packageManager,
-    "typecheck",
-    inherit,
-    readJsonFile,
-  );
+  return executePackageScript(projectRoot, packageManager, "typecheck", inherit, readJsonFile);
 }
 
-function runSyntaxCheck(
-  projectRoot,
-  formatter,
-  targetFiles,
-  changedOnly,
-  inherit,
-) {
+function runSyntaxCheck(projectRoot, formatter, targetFiles, changedOnly, inherit) {
   if (!formatter) {
-    return createSkippedCheck("syntax", "No Biome or Prettier config found");
+    return createSkippedCheck(
+      "syntax",
+      "Formatter config not found. Add biome.json, biome.jsonc, Prettier config, or package.json#prettier.",
+    );
   }
 
   if (formatter === "biome") {
@@ -501,6 +497,13 @@ function runSyntaxCheck(
 }
 
 function runHygieneCheck(projectRoot, inherit) {
+  if (!fs.existsSync(path.join(projectRoot, "knip.json"))) {
+    return createSkippedCheck(
+      "hygiene",
+      "knip config not found. Add knip.json to enable unused-code detection.",
+    );
+  }
+
   return executeLocalBinary(projectRoot, "knip", [], inherit);
 }
 
@@ -519,10 +522,7 @@ function createCheckCommandResult(
   const executionRoot = workspace?.root ?? projectRoot;
   const packageManager = detectPackageManager(executionRoot);
   const baseRef = detectBaseRef(executionRoot, config);
-  const explicitTargetFiles = getExplicitTargetFiles(
-    executionRoot,
-    cliArgs.commandArgs,
-  );
+  const explicitTargetFiles = getExplicitTargetFiles(executionRoot, cliArgs.commandArgs);
   const allChangedFiles = config.changedOnly
     ? explicitTargetFiles.length > 0
       ? explicitTargetFiles
@@ -533,13 +533,10 @@ function createCheckCommandResult(
     config.ignorePatterns,
     normalizePathForMatch,
   );
-  const targetFiles = config.changedOnly
-    ? changedFiles.filter(isJavaScriptOrTypeScriptFile)
-    : [];
+  const targetFiles = config.changedOnly ? changedFiles.filter(isJavaScriptOrTypeScriptFile) : [];
   const inheritOutput = !cliArgs.jsonOutput;
   const formatter =
-    detectFormatter(executionRoot, readJsonFile) ??
-    detectFormatter(projectRoot, readJsonFile);
+    detectFormatter(executionRoot, readJsonFile) ?? detectFormatter(projectRoot, readJsonFile);
 
   const checks = [];
 
@@ -571,13 +568,7 @@ function createCheckCommandResult(
     checks.push(
       createCheckResult(
         "syntax",
-        runSyntaxCheck(
-          executionRoot,
-          formatter,
-          targetFiles,
-          config.changedOnly,
-          inheritOutput,
-        ),
+        runSyntaxCheck(executionRoot, formatter, targetFiles, config.changedOnly, inheritOutput),
         cliArgs.flags,
       ),
     );
@@ -587,11 +578,7 @@ function createCheckCommandResult(
 
   if (config.checks.hygiene) {
     checks.push(
-      createCheckResult(
-        "hygiene",
-        runHygieneCheck(executionRoot, inheritOutput),
-        cliArgs.flags,
-      ),
+      createCheckResult("hygiene", runHygieneCheck(executionRoot, inheritOutput), cliArgs.flags),
     );
   } else {
     checks.push(createSkippedCheck("hygiene", "Disabled by config", "info"));
@@ -599,24 +586,14 @@ function createCheckCommandResult(
 
   if (config.checks.security) {
     checks.push(
-      createCheckResult(
-        "security",
-        runSecurityCheck(executionRoot, inheritOutput),
-        cliArgs.flags,
-      ),
+      createCheckResult("security", runSecurityCheck(executionRoot, inheritOutput), cliArgs.flags),
     );
   } else {
     checks.push(createSkippedCheck("security", "Disabled by config", "info"));
   }
 
   const baseline = readBaselineFile(executionRoot, config);
-  const debt = createDebtResult(
-    config,
-    config.changedOnly,
-    targetFiles,
-    checks,
-    baseline,
-  );
+  const debt = createDebtResult(config, config.changedOnly, targetFiles, checks, baseline);
   const status = getOverallStatus(checks, config, debt);
 
   return {
@@ -630,9 +607,7 @@ function createCheckCommandResult(
     changedFiles,
     targetFiles,
     formatter: formatter ?? null,
-    reportPath: config.writeReport
-      ? path.resolve(executionRoot, config.reportPath)
-      : null,
+    reportPath: config.writeReport ? path.resolve(executionRoot, config.reportPath) : null,
     checks,
     baseline,
     debt,
@@ -706,6 +681,7 @@ module.exports = {
   detectFormatter,
   executePackageScript,
   getLocalBinaryPath,
+  getQualityConfigFiles,
   runSecurityCheck,
   createCheckCommandResult,
   createWorkspaceAggregateResult,

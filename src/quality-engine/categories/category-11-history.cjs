@@ -14,12 +14,25 @@ module.exports = {
     }
 
     const commits = commitLog.split("\n");
-    const junkKeywords = ["fix lint", "fix type", "debug", "temp", "wip", "test commit", "fix fix", "complete rebase", "resolve conflict", "cleanup", "minor fix"];
-    const conventionalCommitRegex = /^[0-9a-f]+\s+(feat|fix|refactor|perf|test|chore|docs|style|build|ci)(\(.+\))?(!)?: .+/;
+    const junkKeywords = [
+      "fix lint",
+      "fix type",
+      "debug",
+      "temp",
+      "wip",
+      "test commit",
+      "fix fix",
+      "complete rebase",
+      "resolve conflict",
+      "cleanup",
+      "minor fix",
+    ];
+    const conventionalCommitRegex =
+      /^[0-9a-f]+\s+(feat|fix|refactor|perf|test|chore|docs|style|build|ci)(\(.+\))?(!)?: .+/;
 
     let historyClean = true;
     for (const commit of commits) {
-      if (junkKeywords.some(k => commit.toLowerCase().includes(k))) {
+      if (junkKeywords.some((k) => commit.toLowerCase().includes(k))) {
         reporter.warn(`Junk commit: "${commit.slice(0, 72)}"`);
         historyClean = false;
       }
@@ -30,7 +43,8 @@ module.exports = {
     }
     if (historyClean) reporter.pass("Commit names are clean and follow conventional format.");
 
-    if (commits.length > 5) reporter.warn(`${commits.length} commits ahead of main — consider squashing.`);
+    if (commits.length > 5)
+      reporter.warn(`${commits.length} commits ahead of main — consider squashing.`);
     else reporter.pass(`${commits.length} commit(s) ahead of main — reasonable.`);
-  }
+  },
 };

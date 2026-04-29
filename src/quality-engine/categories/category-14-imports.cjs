@@ -41,7 +41,14 @@ module.exports = {
           const [, names, src] = namedImportMatch;
           // Heuristic: if source is a types/interfaces file and all names are PascalCase
           const isPureTypeSource = /\/(types|interfaces|models|schemas|dtos?)\b/.test(src);
-          const allPascal = names.split(",").map((n) => n.trim().split(/\s+as\s+/)[0].trim())
+          const allPascal = names
+            .split(",")
+            .map((n) =>
+              n
+                .trim()
+                .split(/\s+as\s+/)[0]
+                .trim(),
+            )
             .every((n) => /^[A-Z]/.test(n) && !/[a-z][A-Z]/.test(n.slice(1)));
           if (isPureTypeSource && allPascal) {
             reporter.warn(`Missing "import type" for type-only import at ${loc}`);
@@ -55,7 +62,9 @@ module.exports = {
         if (srcMatch) {
           const src = srcMatch[1];
           if (seenSources.has(src)) {
-            reporter.warn(`Duplicate import from "${src}" at ${loc} (first at line ${seenSources.get(src)})`);
+            reporter.warn(
+              `Duplicate import from "${src}" at ${loc} (first at line ${seenSources.get(src)})`,
+            );
             clean = false;
           } else {
             seenSources.set(src, i + 1);

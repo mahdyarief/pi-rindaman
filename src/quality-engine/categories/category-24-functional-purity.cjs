@@ -44,7 +44,13 @@ module.exports = {
       lines.forEach((line, i) => {
         const trimmed = line.trim();
         // Skip comments and imports
-        if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*") || trimmed.startsWith("import ")) return;
+        if (
+          trimmed.startsWith("//") ||
+          trimmed.startsWith("*") ||
+          trimmed.startsWith("/*") ||
+          trimmed.startsWith("import ")
+        )
+          return;
 
         const loc = `${file}:${i + 1}`;
 

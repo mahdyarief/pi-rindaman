@@ -1,48 +1,50 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 const testDirectory = dirname(fileURLToPath(import.meta.url));
 const packageDirectory = resolve(testDirectory, "..");
 const cliPath = resolve(packageDirectory, "bin", "pi-rindaman.cjs");
-const minimalFixtureDirectory = resolve(
-  testDirectory,
-  "fixtures",
-  "minimal-project",
-);
-const typecheckFailureFixtureDirectory = resolve(
-  testDirectory,
-  "fixtures",
-  "typecheck-failure",
-);
-const formatterFailureFixtureDirectory = resolve(
-  testDirectory,
-  "fixtures",
-  "formatter-failure",
-);
+const minimalFixtureDirectory = resolve(testDirectory, "fixtures", "minimal-project");
+const typecheckFailureFixtureDirectory = resolve(testDirectory, "fixtures", "typecheck-failure");
+const formatterFailureFixtureDirectory = resolve(testDirectory, "fixtures", "formatter-failure");
 const noGitFixtureDirectory = resolve(testDirectory, "fixtures", "no-git-project");
-const configPrecedenceFixtureDirectory = resolve(
-  testDirectory,
-  "fixtures",
-  "config-precedence",
-);
-const debtConfigFixtureDirectory = resolve(
-  testDirectory,
-  "fixtures",
-  "debt-config",
-);
-const monorepoFixtureDirectory = resolve(
-  testDirectory,
-  "fixtures",
-  "monorepo-project",
-);
+const configPrecedenceFixtureDirectory = resolve(testDirectory, "fixtures", "config-precedence");
+const debtConfigFixtureDirectory = resolve(testDirectory, "fixtures", "debt-config");
+const monorepoFixtureDirectory = resolve(testDirectory, "fixtures", "monorepo-project");
 
 function runCli(args, cwd, env = {}) {
   return spawnSync("node", [cliPath, ...args], {
+    cwd,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      ...env,
+    },
+  });
+}
+
+function runNpm(args, cwd, env = {}) {
+  if (process.platform === "win32") {
+    return spawnSync(
+      process.env.ComSpec ?? "cmd.exe",
+      ["/d", "/s", "/c", `npm ${args.join(" ")}`],
+      {
+        cwd,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          ...env,
+        },
+      },
+    );
+  }
+
+  return spawnSync("npm", args, {
     cwd,
     encoding: "utf8",
     env: {
@@ -95,11 +97,7 @@ function writeExecutable(filePath, contents) {
 }
 
 function ensureFormatterFailureFixtureBinary() {
-  const binaryDirectory = resolve(
-    formatterFailureFixtureDirectory,
-    "node_modules",
-    ".bin",
-  );
+  const binaryDirectory = resolve(formatterFailureFixtureDirectory, "node_modules", ".bin");
 
   mkdirSync(binaryDirectory, { recursive: true });
   writeExecutable(
@@ -176,9 +174,7 @@ test("CLI doctor supports JSON output", () => {
 });
 
 test("package peer dependencies cover extension runtime imports", () => {
-  const packageJson = JSON.parse(
-    readFileSync(resolve(packageDirectory, "package.json"), "utf8"),
-  );
+  const packageJson = JSON.parse(readFileSync(resolve(packageDirectory, "package.json"), "utf8"));
   const extensionSource = readFileSync(
     resolve(packageDirectory, "extensions", "pi-rindaman.ts"),
     "utf8",
@@ -217,7 +213,7 @@ test("CLI check reports typecheck script failures", () => {
     "pi-rindaman-typecheck-introduced-fixture",
     {
       scripts: {
-        typecheck: "node -e \"process.exit(1)\"",
+        typecheck: 'node -e "process.exit(1)"',
       },
       "pi-rindaman": {
         checks: {
@@ -244,10 +240,7 @@ test("CLI check reports typecheck script failures", () => {
 
 test("CLI check reports formatter failures", () => {
   ensureFormatterFailureFixtureBinary();
-  const result = runCli(
-    ["check", "--json", "--all"],
-    formatterFailureFixtureDirectory,
-  );
+  const result = runCli(["check", "--json", "--all"], formatterFailureFixtureDirectory);
 
   assert.equal(result.status, 1);
   const output = parseJsonOutput(result);
@@ -269,21 +262,18 @@ test("CLI baseline writes failed check names", () => {
     ".pi-rindaman",
     "baseline.json",
   );
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-baseline-command-fixture",
-    {
-      scripts: {
-        typecheck: "node -e \"process.exit(1)\"",
-      },
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          syntax: false,
-          hygiene: false,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-baseline-command-fixture", {
+    scripts: {
+      typecheck: 'node -e "process.exit(1)"',
+    },
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        syntax: false,
+        hygiene: false,
       },
     },
-  );
+  });
   const result = runCli(["baseline", "--json"], fixtureDirectory);
 
   assert.equal(result.status, 0);
@@ -298,21 +288,18 @@ test("CLI baseline writes failed check names", () => {
 });
 
 test("CLI check classifies baseline failures as existing", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-existing-baseline-fixture",
-    {
-      scripts: {
-        typecheck: "node -e \"process.exit(1)\"",
-      },
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          syntax: false,
-          hygiene: false,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-existing-baseline-fixture", {
+    scripts: {
+      typecheck: 'node -e "process.exit(1)"',
+    },
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        syntax: false,
+        hygiene: false,
       },
     },
-  );
+  });
   mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
     resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
@@ -334,21 +321,18 @@ test("CLI check classifies baseline failures as existing", () => {
 });
 
 test("CLI check can fail existing baseline debt", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-fail-existing-baseline-fixture",
-    {
-      scripts: {
-        typecheck: "node -e \"process.exit(1)\"",
-      },
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          syntax: false,
-          hygiene: false,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-fail-existing-baseline-fixture", {
+    scripts: {
+      typecheck: 'node -e "process.exit(1)"',
+    },
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        syntax: false,
+        hygiene: false,
       },
     },
-  );
+  });
   mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
     resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
@@ -359,10 +343,7 @@ test("CLI check can fail existing baseline debt", () => {
     )}\n`,
   );
 
-  const result = runCli(
-    ["check", "--json", "--all", "--fail-existing"],
-    fixtureDirectory,
-  );
+  const result = runCli(["check", "--json", "--all", "--fail-existing"], fixtureDirectory);
 
   assert.equal(result.status, 1);
   const output = parseJsonOutput(result);
@@ -372,21 +353,18 @@ test("CLI check can fail existing baseline debt", () => {
 });
 
 test("CLI check can ignore an existing baseline", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-no-baseline-fixture",
-    {
-      scripts: {
-        typecheck: "node -e \"process.exit(1)\"",
-      },
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          syntax: false,
-          hygiene: false,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-no-baseline-fixture", {
+    scripts: {
+      typecheck: 'node -e "process.exit(1)"',
+    },
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        syntax: false,
+        hygiene: false,
       },
     },
-  );
+  });
   mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(
     resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"),
@@ -397,10 +375,7 @@ test("CLI check can ignore an existing baseline", () => {
     )}\n`,
   );
 
-  const result = runCli(
-    ["check", "--json", "--all", "--no-baseline"],
-    fixtureDirectory,
-  );
+  const result = runCli(["check", "--json", "--all", "--no-baseline"], fixtureDirectory);
 
   assert.equal(result.status, 1);
   const output = parseJsonOutput(result);
@@ -411,19 +386,16 @@ test("CLI check can ignore an existing baseline", () => {
 });
 
 test("CLI check ignores invalid baseline JSON", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-invalid-baseline-fixture",
-    {
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          types: false,
-          syntax: false,
-          hygiene: false,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-invalid-baseline-fixture", {
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        types: false,
+        syntax: false,
+        hygiene: false,
       },
     },
-  );
+  });
   mkdirSync(resolve(fixtureDirectory, ".pi-rindaman"), { recursive: true });
   writeFileSync(resolve(fixtureDirectory, ".pi-rindaman", "baseline.json"), "not json\n");
 
@@ -438,10 +410,7 @@ test("CLI check ignores invalid baseline JSON", () => {
 });
 
 test("CLI rejects missing workspace target with JSON error", () => {
-  const result = runCli(
-    ["check", "--json", "--workspace", "missing"],
-    monorepoFixtureDirectory,
-  );
+  const result = runCli(["check", "--json", "--workspace", "missing"], monorepoFixtureDirectory);
 
   assert.equal(result.status, 2);
   const output = parseJsonOutput(result);
@@ -515,10 +484,7 @@ test("CLI baseline writes workspace-local baselines", () => {
 
 test("CLI audit reports unknown debt without failing", () => {
   ensureFormatterFailureFixtureBinary();
-  const result = runCli(
-    ["audit", "--json", "--all"],
-    formatterFailureFixtureDirectory,
-  );
+  const result = runCli(["audit", "--json", "--all"], formatterFailureFixtureDirectory);
 
   assert.equal(result.status, 0);
   const output = parseJsonOutput(result);
@@ -530,9 +496,7 @@ test("CLI audit reports unknown debt without failing", () => {
 });
 
 test("CLI doctor reports missing package.json", () => {
-  const fixtureDirectory = createTemporaryGitBoundary(
-    "pi-rindaman-missing-package-fixture",
-  );
+  const fixtureDirectory = createTemporaryGitBoundary("pi-rindaman-missing-package-fixture");
   const result = runCli(["doctor", "--json"], fixtureDirectory);
 
   assert.equal(result.status, 3);
@@ -555,20 +519,17 @@ test("CLI check does not crash outside a git repo", () => {
 });
 
 test("CLI security check skips when no lockfile exists", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-security-skip-fixture",
-    {
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          types: false,
-          syntax: false,
-          hygiene: false,
-          security: true,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-security-skip-fixture", {
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        types: false,
+        syntax: false,
+        hygiene: false,
+        security: true,
       },
     },
-  );
+  });
   const result = runCli(["check", "--json", "--all"], fixtureDirectory);
 
   assert.equal(result.status, 0);
@@ -580,20 +541,17 @@ test("CLI security check skips when no lockfile exists", () => {
 });
 
 test("CLI security check summarizes severity counts", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-security-summary-fixture",
-    {
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          types: false,
-          syntax: false,
-          hygiene: false,
-          security: true,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-security-summary-fixture", {
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        types: false,
+        syntax: false,
+        hygiene: false,
+        security: true,
       },
     },
-  );
+  });
   writeFileSync(resolve(fixtureDirectory, "package-lock.json"), "{}\n");
   const result = runCli(
     ["check", "--json", "--all"],
@@ -617,20 +575,17 @@ test("CLI security check summarizes severity counts", () => {
 });
 
 test("CLI security check does not block on moderate-only by default", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-security-moderate-fixture",
-    {
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          types: false,
-          syntax: false,
-          hygiene: false,
-          security: true,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-security-moderate-fixture", {
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        types: false,
+        syntax: false,
+        hygiene: false,
+        security: true,
       },
     },
-  );
+  });
   writeFileSync(resolve(fixtureDirectory, "package-lock.json"), "{}\n");
 
   const result = runCli(
@@ -649,25 +604,22 @@ test("CLI security check does not block on moderate-only by default", () => {
 });
 
 test("CLI security config can block on moderate vulnerabilities", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-security-fail-moderate-fixture",
-    {
-      "pi-rindaman": {
-        checks: {
-          semantic: false,
-          types: false,
-          syntax: false,
-          hygiene: false,
-          security: true,
-        },
-        security: {
-          failOnModerate: true,
-          failOnHigh: true,
-          failOnCritical: true,
-        },
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-security-fail-moderate-fixture", {
+    "pi-rindaman": {
+      checks: {
+        semantic: false,
+        types: false,
+        syntax: false,
+        hygiene: false,
+        security: true,
+      },
+      security: {
+        failOnModerate: true,
+        failOnHigh: true,
+        failOnCritical: true,
       },
     },
-  );
+  });
   writeFileSync(resolve(fixtureDirectory, "package-lock.json"), "{}\n");
 
   const result = runCli(
@@ -686,10 +638,7 @@ test("CLI security config can block on moderate vulnerabilities", () => {
 });
 
 test("CLI check treats skipped local tools as warnings by default", () => {
-  const fixtureDirectory = writeTemporaryJsonFixture(
-    "pi-rindaman-skipped-tools-fixture",
-    {},
-  );
+  const fixtureDirectory = writeTemporaryJsonFixture("pi-rindaman-skipped-tools-fixture", {});
   const result = runCli(["check", "--json"], fixtureDirectory);
 
   assert.equal(result.status, 0);
@@ -720,10 +669,7 @@ test("CLI strict mode treats skipped checks as failures", () => {
 });
 
 test("CLI rejects invalid debt mode with JSON error", () => {
-  const result = runCli(
-    ["check", "--json", "--debt-mode", "invalid"],
-    minimalFixtureDirectory,
-  );
+  const result = runCli(["check", "--json", "--debt-mode", "invalid"], minimalFixtureDirectory);
 
   assert.equal(result.status, 2);
   const output = parseJsonOutput(result);
@@ -734,14 +680,7 @@ test("CLI rejects invalid debt mode with JSON error", () => {
 
 test("CLI config precedence applies defaults, package config, file config, then flags", () => {
   const result = runCli(
-    [
-      "check",
-      "--json",
-      "--all",
-      "--strict",
-      "--report-path",
-      ".pi-rindaman/from-flag.md",
-    ],
+    ["check", "--json", "--all", "--strict", "--report-path", ".pi-rindaman/from-flag.md"],
     configPrecedenceFixtureDirectory,
   );
 
@@ -771,4 +710,131 @@ test("CLI debt config precedence applies package, file, then flags", () => {
 
   assert.equal(output.debt.mode, "all");
   assert.equal(output.policy.failOnExistingDebt, true);
+});
+
+test("CLI check can use an explicit project root", () => {
+  const parentDirectory = createTemporaryGitBoundary("pi-rindaman-project-root-parent-fixture");
+  const nestedDirectory = resolve(parentDirectory, "nested", "deeper");
+
+  mkdirSync(nestedDirectory, { recursive: true });
+
+  const result = runCli(
+    ["check", "--json", "--project-root", minimalFixtureDirectory],
+    nestedDirectory,
+  );
+
+  assert.equal(result.status, 0);
+  const output = parseJsonOutput(result);
+
+  assert.equal(output.projectRoot, minimalFixtureDirectory);
+});
+
+test("CLI doctor can use an explicit project root", () => {
+  const parentDirectory = createTemporaryGitBoundary(
+    "pi-rindaman-doctor-project-root-parent-fixture",
+  );
+  const nestedDirectory = resolve(parentDirectory, "nested", "deeper");
+
+  mkdirSync(nestedDirectory, { recursive: true });
+
+  const result = runCli(["doctor", "--json", "--project-root", packageDirectory], nestedDirectory);
+
+  assert.equal(result.status, 0);
+  const output = parseJsonOutput(result);
+
+  assert.equal(output.projectRoot, packageDirectory);
+});
+
+test("CLI rejects invalid explicit project roots with JSON error", () => {
+  const result = runCli(
+    ["check", "--json", "--project-root", resolve(tmpdir(), "missing-project-root")],
+    packageDirectory,
+  );
+
+  assert.equal(result.status, 2);
+  const output = parseJsonOutput(result);
+
+  assert.equal(output.status, "error");
+  assert.match(output.error, /project root/i);
+});
+
+test("CLI doctor reports discovered quality configuration", () => {
+  const result = runCli(["doctor", "--json"], packageDirectory);
+
+  assert.equal(result.status, 0);
+  const output = parseJsonOutput(result);
+
+  assert.deepEqual(output.configFiles, {
+    biome: true,
+    prettier: false,
+    knip: true,
+  });
+});
+
+test("package self-check reports actionable skip reasons when tooling is absent", () => {
+  const fixtureDirectory = writeTemporaryJsonFixture(
+    "pi-rindaman-missing-quality-tooling-fixture",
+    {},
+  );
+  const result = runCli(["check", "--json", "--all"], fixtureDirectory);
+
+  assert.equal(result.status, 0);
+  const output = parseJsonOutput(result);
+  const syntaxCheck = findCheck(output, "syntax");
+  const hygieneCheck = findCheck(output, "hygiene");
+
+  assert.match(syntaxCheck.reason, /formatter config/i);
+  assert.match(hygieneCheck.reason, /knip/i);
+});
+
+test("release check script covers package verification commands", () => {
+  const packageJson = JSON.parse(readFileSync(resolve(packageDirectory, "package.json"), "utf8"));
+
+  assert.match(
+    packageJson.scripts["release:check"],
+    /node bin\/pi-rindaman\.cjs check --json --all/,
+  );
+  assert.match(
+    packageJson.scripts["release:check"],
+    /node bin\/pi-rindaman\.cjs audit --json --all/,
+  );
+  assert.match(packageJson.scripts["release:check"], /npm pack --dry-run --json/);
+});
+
+test("package typecheck script runs a real TypeScript check", () => {
+  const packageJson = JSON.parse(readFileSync(resolve(packageDirectory, "package.json"), "utf8"));
+
+  assert.match(packageJson.scripts.typecheck, /tsc/);
+  assert.doesNotMatch(packageJson.scripts.typecheck, /No standalone typecheck step configured/);
+});
+
+test("tsconfig covers the shipped extension source", () => {
+  const tsconfig = JSON.parse(readFileSync(resolve(packageDirectory, "tsconfig.json"), "utf8"));
+
+  assert.ok(tsconfig.include.includes("extensions/**/*.ts"));
+});
+
+test("CLI runner avoids shell-true child process execution", () => {
+  const checkRunnerSource = readFileSync(
+    resolve(packageDirectory, "src", "cli", "check-runner.cjs"),
+    "utf8",
+  );
+
+  assert.doesNotMatch(checkRunnerSource, /shell:\s*true/);
+});
+
+test("npm pack dry run includes runtime package surfaces", () => {
+  const result = runNpm(["pack", "--dry-run", "--json"], packageDirectory);
+
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+
+  const [output] = JSON.parse(result.stdout);
+  const packagedFiles = output.files.map((file) => file.path);
+
+  assert.ok(packagedFiles.includes("bin/pi-rindaman.cjs"));
+  assert.ok(packagedFiles.includes("extensions/pi-rindaman.ts"));
+  assert.ok(packagedFiles.includes("skills/pi-rindaman/SKILL.md"));
+  assert.ok(packagedFiles.includes("src/cli/args.cjs"));
+  assert.ok(packagedFiles.includes("src/quality-engine/engine.cjs"));
 });

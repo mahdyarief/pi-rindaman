@@ -11,10 +11,9 @@ const MAGIC_IN_CALLS = [
 
 // Numbers that are always self-explaining in context
 const WHITELIST = new Set([
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 16, 20, 24, 30, 32,
-  60, 64, 100, 128, 200, 201, 204, 256, 300, 301, 302, 400, 401,
-  403, 404, 409, 422, 429, 500, 502, 503, 512, 1000, 1024,
-  1440, 1080, 1920, 2560, 3000, 3001, 5173, 8080, 8000, 65535,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 16, 20, 24, 30, 32, 60, 64, 100, 128, 200, 201, 204, 256,
+  300, 301, 302, 400, 401, 403, 404, 409, 422, 429, 500, 502, 503, 512, 1000, 1024, 1440, 1080,
+  1920, 2560, 3000, 3001, 5173, 8080, 8000, 65535,
 ]);
 
 module.exports = {
@@ -32,7 +31,13 @@ module.exports = {
       const lines = fs.readFileSync(file, "utf8").split("\n");
       lines.forEach((line, i) => {
         const trimmed = line.trim();
-        if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("import ") || trimmed.startsWith("package ")) return;
+        if (
+          trimmed.startsWith("//") ||
+          trimmed.startsWith("*") ||
+          trimmed.startsWith("import ") ||
+          trimmed.startsWith("package ")
+        )
+          return;
         const loc = `${file}:${i + 1}`;
 
         // Check comparisons

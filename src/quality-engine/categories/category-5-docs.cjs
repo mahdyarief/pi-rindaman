@@ -1,13 +1,19 @@
 const fs = require("fs");
 const path = require("path");
 
-const BUZZWORD_IN_COMMENT = /\/\/.*\b(optimized|efficient|seamless|robust|ensures|provides|scalable|maintainable|enterprise.grade|production.ready)\b/i;
+const BUZZWORD_IN_COMMENT =
+  /\/\/.*\b(optimized|efficient|seamless|robust|ensures|provides|scalable|maintainable|enterprise.grade|production.ready)\b/i;
 const REDUNDANT_PARAM = /@param\s+\{?[\w<>[\]|, ]+\}?\s+(\w+)\s+-\s+[Tt]he\s+\1/;
 const REDUNDANT_RETURNS = /@returns?\s+[Tt]he\s+(processed\s+)?(data|result|item|value|response)/i;
 const README_BOILERPLATE = [
-  "Welcome to our", "This project is built with", "Getting started with this amazing",
-  "A modern, scalable", "Built with cutting-edge", "Seamlessly integrates",
-  "Provides a robust", "Ensures code quality",
+  "Welcome to our",
+  "This project is built with",
+  "Getting started with this amazing",
+  "A modern, scalable",
+  "Built with cutting-edge",
+  "Seamlessly integrates",
+  "Provides a robust",
+  "Ensures code quality",
 ];
 
 module.exports = {
@@ -66,14 +72,14 @@ module.exports = {
         const blockLineCount = blockLines.length;
         if (blockLineCount > 8) {
           const afterBlock = lines.slice(i + blockLineCount, i + blockLineCount + 6).join("\n");
-          const logicLineCount = afterBlock
-            .split("\n")
-            .filter((l) => {
-              const t = l.trim();
-              return t && !t.startsWith("//") && t !== "{" && t !== "}" && !t.startsWith("*");
-            }).length;
+          const logicLineCount = afterBlock.split("\n").filter((l) => {
+            const t = l.trim();
+            return t && !t.startsWith("//") && t !== "{" && t !== "}" && !t.startsWith("*");
+          }).length;
           if (logicLineCount <= 3) {
-            reporter.warn(`Over-documented simple function at ${file}:${i + 1} (${blockLineCount}-line doc, ${logicLineCount} logic lines)`);
+            reporter.warn(
+              `Over-documented simple function at ${file}:${i + 1} (${blockLineCount}-line doc, ${logicLineCount} logic lines)`,
+            );
             clean = false;
           }
         }

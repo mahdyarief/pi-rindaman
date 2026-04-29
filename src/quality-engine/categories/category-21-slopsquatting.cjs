@@ -101,7 +101,7 @@ module.exports = {
       const lines = fs.readFileSync(file, "utf8").split("\n");
       lines.forEach((line, i) => {
         const importMatch = line.match(
-          /(?:from\s+|require\s*\(\s*|import\s*\(\s*)['"]([^'".][^'"]*)['"]/
+          /(?:from\s+|require\s*\(\s*|import\s*\(\s*)['"]([^'".][^'"]*)['"]/,
         );
         if (!importMatch) return;
 
@@ -114,14 +114,14 @@ module.exports = {
 
         if (deps.size > 0 && !deps.has(pkgName) && !knownPackages.has(pkgName)) {
           reporter.fail(
-            `Slopsquatting risk: package "${pkgName}" is NOT in package.json at ${file}:${i + 1}`
+            `Slopsquatting risk: package "${pkgName}" is NOT in package.json at ${file}:${i + 1}`,
           );
           slopsquatClean = false;
         } else if (deps.size === 0) {
           const matched = slopsquattingPatterns.find((p) => p.test(pkgName));
           if (matched) {
             reporter.fail(
-              `Slopsquatting risk: suspicious package "${pkgName}" at ${file}:${i + 1}`
+              `Slopsquatting risk: suspicious package "${pkgName}" at ${file}:${i + 1}`,
             );
             slopsquatClean = false;
           }

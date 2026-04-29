@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
+import { resolve } from "node:path";
 import test from "node:test";
 
 import piRindaman from "../extensions/pi-rindaman.ts";
 
+const minimalFixtureDirectory = resolve(import.meta.dirname, "fixtures", "minimal-project");
+
 function createCommandTestHarness() {
   const commands = new Map();
+  const tools = new Map();
   const notifications = [];
   const entries = [];
 
@@ -16,10 +20,13 @@ function createCommandTestHarness() {
     registerCommand(name, config) {
       commands.set(name, config);
     },
-    registerTool() {},
+    registerTool(config) {
+      tools.set(config.name, config);
+    },
   };
 
   const ctx = {
+    cwd: minimalFixtureDirectory,
     hasUI: true,
     ui: {
       notify(message, level) {
@@ -38,7 +45,7 @@ function createCommandTestHarness() {
 
   piRindaman(pi);
 
-  return { commands, notifications, entries, ctx };
+  return { commands, tools, notifications, entries, ctx };
 }
 
 test("slash command handlers accept full command text arguments", async () => {
@@ -58,4 +65,22 @@ test("slash command handlers accept full command text arguments", async () => {
       { message: "Strict mode disabled.", level: "info" },
     ],
   );
+});
+
+test("pi_rindaman_check resolves the bundled CLI outside the active repo", async () => {
+  const originalCwd = process.cwd();
+  const { tools, ctx } = createCommandTestHarness();
+
+  process.chdir(minimalFixtureDirectory);
+
+  try {
+    const result = await tools
+      .get("pi_rindaman_check")
+      .execute("tool-call-1", { json: true }, undefined, undefined, ctx);
+
+    assert.match(result.details.command, /bin[\\/]pi-rindaman\.cjs/);
+    assert.equal(result.details.status, "passed");
+  } finally {
+    process.chdir(originalCwd);
+  }
 });

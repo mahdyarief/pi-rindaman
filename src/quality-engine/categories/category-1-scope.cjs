@@ -29,7 +29,7 @@ module.exports = {
 
     // Diff size alarm
     const { run } = require("../core/utils.cjs");
-    const diffCmd = context.isExplicit 
+    const diffCmd = context.isExplicit
       ? `git diff main --shortstat -- ${context.changedFiles.join(" ")}`
       : `git diff main --shortstat`;
     const diffStat = run(diffCmd);
@@ -44,5 +44,5 @@ module.exports = {
     }
 
     if (scopeClean) reporter.pass("No out-of-scope config or entrypoint files modified.");
-  }
+  },
 };

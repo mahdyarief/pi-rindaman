@@ -40,8 +40,7 @@ function createDefaultConfig() {
 function readConfig(projectRoot) {
   const packageJson = readJsonFile(path.join(projectRoot, "package.json")) ?? {};
   const packageConfig = packageJson["pi-rindaman"] ?? {};
-  const fileConfig =
-    readJsonFile(path.join(projectRoot, ".pi-rindamanrc.json")) ?? {};
+  const fileConfig = readJsonFile(path.join(projectRoot, ".pi-rindamanrc.json")) ?? {};
   const defaultConfig = createDefaultConfig();
 
   return {
@@ -59,19 +58,15 @@ function readConfig(projectRoot) {
       ...(fileConfig.security ?? {}),
     },
     ignorePatterns:
-      fileConfig.ignorePatterns ??
-      packageConfig.ignorePatterns ??
-      defaultConfig.ignorePatterns,
+      fileConfig.ignorePatterns ?? packageConfig.ignorePatterns ?? defaultConfig.ignorePatterns,
   };
 }
 
 function readWorkspaceConfig(projectRoot, workspaceRoot) {
   const rootConfig = readConfig(projectRoot);
-  const workspacePackageJson =
-    readJsonFile(path.join(workspaceRoot, "package.json")) ?? {};
+  const workspacePackageJson = readJsonFile(path.join(workspaceRoot, "package.json")) ?? {};
   const workspacePackageConfig = workspacePackageJson["pi-rindaman"] ?? {};
-  const workspaceFileConfig =
-    readJsonFile(path.join(workspaceRoot, ".pi-rindamanrc.json")) ?? {};
+  const workspaceFileConfig = readJsonFile(path.join(workspaceRoot, ".pi-rindamanrc.json")) ?? {};
 
   return {
     ...rootConfig,
@@ -113,16 +108,11 @@ function applyFlagOverrides(config, cliArgs, readFlagValue, readDebtModeFlag) {
         ? false
         : config.writeReport,
     reportPath: readFlagValue(cliArgs.commandArgs, "--report-path") ?? config.reportPath,
-    allowPackageInstall: cliArgs.flags.has("--allow-install")
-      ? true
-      : config.allowPackageInstall,
+    allowPackageInstall: cliArgs.flags.has("--allow-install") ? true : config.allowPackageInstall,
     baseRef: readFlagValue(cliArgs.commandArgs, "--base") ?? config.baseRef,
     debtMode: readDebtModeFlag(cliArgs.commandArgs) ?? config.debtMode,
-    failOnExistingDebt: cliArgs.flags.has("--fail-existing")
-      ? true
-      : config.failOnExistingDebt,
-    baselinePath:
-      readFlagValue(cliArgs.commandArgs, "--baseline-path") ?? config.baselinePath,
+    failOnExistingDebt: cliArgs.flags.has("--fail-existing") ? true : config.failOnExistingDebt,
+    baselinePath: readFlagValue(cliArgs.commandArgs, "--baseline-path") ?? config.baselinePath,
     useBaseline: cliArgs.flags.has("--no-baseline") ? false : config.useBaseline,
   };
 }

@@ -49,11 +49,14 @@ module.exports = {
         const prev = lines[i - 1].trim();
         const curr = lines[i].trim();
         // Previous line constructs a value, next line guards it as if it can be null
-        const constructsValue = /^const\s+(\w+)\s*=\s*(?:new\s+\w+|build\w+|create\w+|get\w+|make\w+)\s*\(/.exec(prev);
+        const constructsValue =
+          /^const\s+(\w+)\s*=\s*(?:new\s+\w+|build\w+|create\w+|get\w+|make\w+)\s*\(/.exec(prev);
         if (constructsValue) {
           const varName = constructsValue[1];
           if (new RegExp(`if\\s*\\(!\\s*${varName}\\s*\\)`).test(curr)) {
-            reporter.warn(`Unnecessary null-guard on "${varName}" at ${file}:${i + 1} — it was just constructed above`);
+            reporter.warn(
+              `Unnecessary null-guard on "${varName}" at ${file}:${i + 1} — it was just constructed above`,
+            );
             clean = false;
           }
         }

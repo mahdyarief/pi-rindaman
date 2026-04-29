@@ -37,9 +37,31 @@ async function main() {
   const runner = new Runner(context, reporter);
 
   const categories = [
-    cat1, cat2, cat3, cat4, cat5, cat6, cat7, cat8, cat9,
-    cat10, cat11, cat12, cat13, cat14, cat15, cat16, cat17,
-    cat18, cat19, cat20, cat21, cat22, cat23, cat24, cat25
+    cat1,
+    cat2,
+    cat3,
+    cat4,
+    cat5,
+    cat6,
+    cat7,
+    cat8,
+    cat9,
+    cat10,
+    cat11,
+    cat12,
+    cat13,
+    cat14,
+    cat15,
+    cat16,
+    cat17,
+    cat18,
+    cat19,
+    cat20,
+    cat21,
+    cat22,
+    cat23,
+    cat24,
+    cat25,
   ];
 
   runner.run(categories);
@@ -48,9 +70,11 @@ async function main() {
   return { context, reporter, runner };
 }
 
-main().then(({ runner }) => {
-  runner.finish();
-}).catch(err => {
-  console.error("Quality Engine Error:", err);
-  process.exit(1);
-});
+main()
+  .then(({ runner }) => {
+    runner.finish();
+  })
+  .catch((err) => {
+    console.error("Quality Engine Error:", err);
+    process.exit(1);
+  });

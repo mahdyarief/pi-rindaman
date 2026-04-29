@@ -5,26 +5,27 @@ module.exports = {
   run(context, reporter) {
     const tsTerminalRegex = /^\s*(return|throw)\b/;
     const goTerminalRegex = /^\s*(return|panic)\b/;
-    
+
     let clean = true;
 
     for (const file of context.sourceFiles) {
       const isGo = file.endsWith(".go");
       const terminalRegex = isGo ? goTerminalRegex : tsTerminalRegex;
-      
+
       const lines = fs.readFileSync(file, "utf8").split("\n");
       for (let i = 0; i < lines.length - 1; i++) {
         const currentLine = lines[i];
         if (!terminalRegex.test(currentLine)) continue;
-        
+
         const currentTrimmed = currentLine.trim();
         const nextLine = lines[i + 1];
         const nextTrimmed = nextLine.trim();
 
         // Check for single-line if statement without braces (TS only)
         if (!isGo) {
-          const prevTrimmed = i > 0 ? lines[i-1].trim() : "";
-          const isGuardedByIf = /^(if|else|try|catch|finally)\b/.test(prevTrimmed) && !prevTrimmed.endsWith("{");
+          const prevTrimmed = i > 0 ? lines[i - 1].trim() : "";
+          const isGuardedByIf =
+            /^(if|else|try|catch|finally)\b/.test(prevTrimmed) && !prevTrimmed.endsWith("{");
           const startsWithIf = /^(if|else|try|catch|finally)\b/.test(currentTrimmed);
           if (isGuardedByIf || startsWithIf) continue;
         }
@@ -54,5 +55,5 @@ module.exports = {
       }
     }
     if (clean) reporter.pass("No dead code after terminal found.");
-  }
+  },
 };

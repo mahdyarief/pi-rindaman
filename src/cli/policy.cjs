@@ -28,11 +28,7 @@ function createDebtResult(config, changedOnly, targetFiles, checks, baseline) {
     return debtResult;
   }
 
-  if (
-    config.debtMode === "changed-only" &&
-    changedOnly &&
-    targetFiles.length > 0
-  ) {
+  if (config.debtMode === "changed-only" && changedOnly && targetFiles.length > 0) {
     debtResult.introducedChecks = unclassifiedCheckNames;
     debtResult.classification = existingCheckNames.length > 0 ? "mixed" : "introduced";
     return debtResult;

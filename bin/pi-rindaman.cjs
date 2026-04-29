@@ -8,6 +8,7 @@ const {
   readFlagValue,
   readDebtModeFlag,
   readWorkspaceTarget,
+  readProjectRootFlag,
   shouldRunAllWorkspaces,
 } = require("../src/cli/args.cjs");
 const {
@@ -37,6 +38,7 @@ const {
   detectFormatter,
   executePackageScript,
   getLocalBinaryPath,
+  getQualityConfigFiles,
   createCheckCommandResult,
   createWorkspaceAggregateResult,
 } = require("../src/cli/check-runner.cjs");
@@ -98,6 +100,28 @@ function findProjectRoot(startDirectory) {
   return startDirectory;
 }
 
+function resolveProjectRoot() {
+  const explicitProjectRoot = readProjectRootFlag(cliArgs.commandArgs);
+
+  if (!explicitProjectRoot) {
+    return findProjectRoot(process.cwd());
+  }
+
+  const resolvedProjectRoot = path.resolve(process.cwd(), explicitProjectRoot);
+
+  if (!fs.existsSync(resolvedProjectRoot)) {
+    throw new Error(`Invalid project root: ${resolvedProjectRoot} does not exist`);
+  }
+
+  const stats = fs.statSync(resolvedProjectRoot);
+
+  if (!stats.isDirectory()) {
+    throw new Error(`Invalid project root: ${resolvedProjectRoot} is not a directory`);
+  }
+
+  return resolvedProjectRoot;
+}
+
 function writeJsonResult(result) {
   console.log(JSON.stringify(result, null, 2));
 }
@@ -107,15 +131,8 @@ function printHumanSummary(result) {
 
   for (const check of result.checks) {
     const suffix = check.reason ? ` - ${check.reason}` : "";
-    const color =
-      check.status === "passed"
-        ? GREEN
-        : check.status === "failed"
-          ? RED
-          : YELLOW;
-    console.log(
-      colorize(color, `[pi-rindaman] ${check.name}: ${check.status}${suffix}`),
-    );
+    const color = check.status === "passed" ? GREEN : check.status === "failed" ? RED : YELLOW;
+    console.log(colorize(color, `[pi-rindaman] ${check.name}: ${check.status}${suffix}`));
   }
 
   console.log(`[pi-rindaman] Status: ${result.status}`);
@@ -155,7 +172,7 @@ function createSingleCheckResult(auditMode, projectRoot) {
 }
 
 function runCheckCommand(auditMode) {
-  const projectRoot = findProjectRoot(process.cwd());
+  const projectRoot = resolveProjectRoot();
 
   if (shouldRunAllWorkspaces(cliArgs.flags)) {
     const aggregateResult = createWorkspaceAggregateResult(
@@ -182,12 +199,7 @@ function runCheckCommand(auditMode) {
     }
 
     process.exit(
-      getExitCodeForStatus(
-        aggregateResult.status,
-        auditMode,
-        EXIT_OK,
-        EXIT_QUALITY_BLOCKER,
-      ),
+      getExitCodeForStatus(aggregateResult.status, auditMode, EXIT_OK, EXIT_QUALITY_BLOCKER),
     );
   }
 
@@ -205,18 +217,11 @@ function runCheckCommand(auditMode) {
     printHumanSummary(result);
   }
 
-  process.exit(
-    getExitCodeForStatus(
-      result.status,
-      auditMode,
-      EXIT_OK,
-      EXIT_QUALITY_BLOCKER,
-    ),
-  );
+  process.exit(getExitCodeForStatus(result.status, auditMode, EXIT_OK, EXIT_QUALITY_BLOCKER));
 }
 
 function runBaselineCommand() {
-  const projectRoot = findProjectRoot(process.cwd());
+  const projectRoot = resolveProjectRoot();
 
   if (shouldRunAllWorkspaces(cliArgs.flags)) {
     const workspaces = discoverWorkspaces(projectRoot, readJsonFile);
@@ -310,14 +315,13 @@ function runBaselineCommand() {
 }
 
 function runDoctorCommand() {
-  const projectRoot = findProjectRoot(process.cwd());
+  const projectRoot = resolveProjectRoot();
   const config = createResolvedConfig(projectRoot);
   const packageManager = detectPackageManager(projectRoot);
-  const packageJsonExists = fs.existsSync(
-    path.join(projectRoot, "package.json"),
-  );
+  const packageJsonExists = fs.existsSync(path.join(projectRoot, "package.json"));
   const gitAvailable = true;
   const formatter = detectFormatter(projectRoot, readJsonFile);
+  const configFiles = getQualityConfigFiles(projectRoot, readJsonFile);
 
   const checks = [
     {
@@ -348,33 +352,26 @@ function runDoctorCommand() {
     },
     {
       name: "biome_binary",
-      status: fs.existsSync(getLocalBinaryPath(projectRoot, "biome"))
-        ? "passed"
-        : "skipped",
+      status: fs.existsSync(getLocalBinaryPath(projectRoot, "biome")) ? "passed" : "skipped",
     },
     {
       name: "prettier_binary",
-      status: fs.existsSync(getLocalBinaryPath(projectRoot, "prettier"))
-        ? "passed"
-        : "skipped",
+      status: fs.existsSync(getLocalBinaryPath(projectRoot, "prettier")) ? "passed" : "skipped",
     },
     {
       name: "knip_binary",
-      status: fs.existsSync(getLocalBinaryPath(projectRoot, "knip"))
-        ? "passed"
-        : "skipped",
+      status: fs.existsSync(getLocalBinaryPath(projectRoot, "knip")) ? "passed" : "skipped",
     },
   ];
 
-  const status = checks.some((check) => check.status === "failed")
-    ? "failed"
-    : "passed";
+  const status = checks.some((check) => check.status === "failed") ? "failed" : "passed";
   const result = {
     command: "doctor",
     status,
     projectRoot,
     packageManager,
     config,
+    configFiles,
     checks,
   };
 
@@ -385,15 +382,8 @@ function runDoctorCommand() {
 
     for (const check of checks) {
       const suffix = check.detail ? ` - ${check.detail}` : "";
-      const color =
-        check.status === "passed"
-          ? GREEN
-          : check.status === "failed"
-            ? RED
-            : YELLOW;
-      console.log(
-        colorize(color, `[pi-rindaman] ${check.name}: ${check.status}${suffix}`),
-      );
+      const color = check.status === "passed" ? GREEN : check.status === "failed" ? RED : YELLOW;
+      console.log(colorize(color, `[pi-rindaman] ${check.name}: ${check.status}${suffix}`));
     }
   }
 
@@ -422,6 +412,7 @@ function printHelp() {
       "  --changed-only     Run file-scoped checks against changed JS/TS files",
       "  --all              Run broad checks where supported",
       "  --base <ref>       Compare changed files against a specific base ref",
+      "  --project-root <p> Resolve checks against an explicit project root",
       "  --report           Write .pi-rindaman/report.md through the semantic engine",
       "  --report-path <p>  Write report to a custom path when --report is enabled",
       "  --debt-mode <mode> Classify debt with changed-only or all mode",

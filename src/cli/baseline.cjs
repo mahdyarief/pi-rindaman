@@ -45,9 +45,7 @@ function readBaselineFile(projectRoot, config) {
 }
 
 function getFailedCheckNames(checks) {
-  return checks
-    .filter((check) => check.status === "failed")
-    .map((check) => check.name);
+  return checks.filter((check) => check.status === "failed").map((check) => check.name);
 }
 
 function writeBaselineFile(projectRoot, config, checkNames) {

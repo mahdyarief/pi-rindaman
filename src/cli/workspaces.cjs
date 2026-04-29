@@ -38,9 +38,7 @@ function readPnpmWorkspacePatterns(projectRoot) {
 
 function expandWorkspacePattern(projectRoot, workspacePattern) {
   if (!workspacePattern.endsWith("/*")) {
-    return fs.existsSync(path.join(projectRoot, workspacePattern))
-      ? [workspacePattern]
-      : [];
+    return fs.existsSync(path.join(projectRoot, workspacePattern)) ? [workspacePattern] : [];
   }
 
   const parentPattern = workspacePattern.slice(0, -2);
@@ -53,9 +51,7 @@ function expandWorkspacePattern(projectRoot, workspacePattern) {
   return fs
     .readdirSync(parentDirectory, { withFileTypes: true })
     .filter((directoryEntry) => directoryEntry.isDirectory())
-    .map((directoryEntry) =>
-      normalizePathForMatch(path.join(parentPattern, directoryEntry.name)),
-    )
+    .map((directoryEntry) => normalizePathForMatch(path.join(parentPattern, directoryEntry.name)))
     .filter((workspacePath) =>
       fs.existsSync(path.join(projectRoot, workspacePath, "package.json")),
     );
@@ -76,8 +72,7 @@ function discoverWorkspaces(projectRoot, readJsonFile) {
 
   return workspacePaths.map((workspacePath) => {
     const workspaceRoot = path.join(projectRoot, workspacePath);
-    const workspacePackageJson =
-      readJsonFile(path.join(workspaceRoot, "package.json")) ?? {};
+    const workspacePackageJson = readJsonFile(path.join(workspaceRoot, "package.json")) ?? {};
 
     return {
       name: workspacePackageJson.name ?? workspacePath,
@@ -92,8 +87,7 @@ function selectWorkspace(projectRoot, workspaceTarget, readJsonFile) {
   const normalizedTarget = normalizePathForMatch(workspaceTarget);
   const workspace = workspaces.find(
     (candidateWorkspace) =>
-      candidateWorkspace.name === workspaceTarget ||
-      candidateWorkspace.path === normalizedTarget,
+      candidateWorkspace.name === workspaceTarget || candidateWorkspace.path === normalizedTarget,
   );
 
   if (!workspace) {

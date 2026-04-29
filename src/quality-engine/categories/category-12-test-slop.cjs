@@ -6,10 +6,14 @@ const HOLLOW_ASSERTIONS = [
   { regex: /\.toBeNull\(\)/, label: "toBeNull() — likely meaningless if value is always null" },
   { regex: /\.toEqual\(\[\]\)/, label: "toEqual([]) — proves nothing about correct behavior" },
   { regex: /\.toEqual\(\{\}\)/, label: "toEqual({}) — proves nothing about correct behavior" },
-  { regex: /expect\(.*\)\.not\.toThrow\(\)/, label: "not.toThrow() — passes even if function noops" },
+  {
+    regex: /expect\(.*\)\.not\.toThrow\(\)/,
+    label: "not.toThrow() — passes even if function noops",
+  },
 ];
 
-const INTERNAL_SPY = /expect\(.*spy.*\)\.toHaveBeenCalled\(\)|expect\(.*mock.*\)\.toHaveBeenCalled\(\)/i;
+const INTERNAL_SPY =
+  /expect\(.*spy.*\)\.toHaveBeenCalled\(\)|expect\(.*mock.*\)\.toHaveBeenCalled\(\)/i;
 const MOCK_OF_SUT = /vi\.mock\(['"]\.\.?\//; // mocking a local module (relative path) = mocking own code
 
 module.exports = {
@@ -61,7 +65,9 @@ module.exports = {
 
         // Spying on internals without verifying args
         if (INTERNAL_SPY.test(line)) {
-          reporter.warn(`Spy-on-internals pattern at ${loc} — assert what the user sees, not internal calls`);
+          reporter.warn(
+            `Spy-on-internals pattern at ${loc} — assert what the user sees, not internal calls`,
+          );
           clean = false;
         }
 
@@ -73,11 +79,17 @@ module.exports = {
       });
 
       // Test blocks without expect()
-      let inBlock = false, blockStart = -1, hasExpect = false, depth = 0;
+      let inBlock = false,
+        blockStart = -1,
+        hasExpect = false,
+        depth = 0;
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         if (/\bit\s*\(/.test(line) && !inBlock) {
-          inBlock = true; blockStart = i + 1; hasExpect = false; depth = 0;
+          inBlock = true;
+          blockStart = i + 1;
+          hasExpect = false;
+          depth = 0;
         }
         if (inBlock) {
           depth += (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;

@@ -1,13 +1,29 @@
 const fs = require("fs");
 
 const BUZZWORDS = [
-  "optimized", "efficient", "performant", "seamlessly", "seamless",
-  "robust", "powerful", "ensures", "provides", "cinematic",
-  "organic", "film-like", "elegant", "smooth", "enterprise-grade",
-  "production-ready", "scalable", "maintainable", "flexible",
+  "optimized",
+  "efficient",
+  "performant",
+  "seamlessly",
+  "seamless",
+  "robust",
+  "powerful",
+  "ensures",
+  "provides",
+  "cinematic",
+  "organic",
+  "film-like",
+  "elegant",
+  "smooth",
+  "enterprise-grade",
+  "production-ready",
+  "scalable",
+  "maintainable",
+  "flexible",
 ];
 
-const FUNCTION_TRANSLATION = /\/\/\s*(create|handle|process|enable|initialize|setup|update|fetch|load|render|build|generate|parse|format|validate|delete|remove|add|get|set|check|run|start|stop|reset|clear|close|open|send|receive|calculate|compute|convert|transform|merge|split|sort|filter|map|reduce)\s+(?:the|a|an)?\s*\w+/i;
+const FUNCTION_TRANSLATION =
+  /\/\/\s*(create|handle|process|enable|initialize|setup|update|fetch|load|render|build|generate|parse|format|validate|delete|remove|add|get|set|check|run|start|stop|reset|clear|close|open|send|receive|calculate|compute|convert|transform|merge|split|sort|filter|map|reduce)\s+(?:the|a|an)?\s*\w+/i;
 
 const UNVERIFIED_PERCENTAGE = /\/\/.*\b\d+\s*%\b/;
 
@@ -15,7 +31,8 @@ module.exports = {
   name: "🟡 Category 9: Comment Quality",
   run(context, reporter) {
     const SECTION_BANNER = /\/\/+\s*={4,}|\/\/+\s*-{4,}|\/\/+\s*#{4,}/;
-    const SECTION_HEADER = /\/\/\s*(INITIALIZATION|MAIN LOGIC|SETUP|CLEANUP|START|END|SECTION|STEP \d+)\s*$/i;
+    const SECTION_HEADER =
+      /\/\/\s*(INITIALIZATION|MAIN LOGIC|SETUP|CLEANUP|START|END|SECTION|STEP \d+)\s*$/i;
 
     let clean = true;
 

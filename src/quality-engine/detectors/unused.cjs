@@ -11,7 +11,11 @@ function runKnip(rootDir) {
   const localKnip = getLocalBinary(rootDir, "knip");
 
   if (!fs.existsSync(localKnip)) {
-    return { status: null, stdout: "", stderr: "knip is not installed locally; skipped to avoid package auto-install." };
+    return {
+      status: null,
+      stdout: "",
+      stderr: "knip is not installed locally; skipped to avoid package auto-install.",
+    };
   }
 
   let result = spawnSync(localKnip, [], {
@@ -36,7 +40,10 @@ module.exports = {
       return;
     }
 
-    const output = [result && result.stdout, result && result.stderr].filter(Boolean).join("\n").trim();
+    const output = [result && result.stdout, result && result.stderr]
+      .filter(Boolean)
+      .join("\n")
+      .trim();
     if (output) {
       reporter.warn("Knip found dead code or unused files. Check output:");
       reporter.note(output);
