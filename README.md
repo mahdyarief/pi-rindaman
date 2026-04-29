@@ -35,6 +35,32 @@ Install project-locally:
 pi install -l .
 ```
 
+If you want to clone or enter the repo before a local install, use commands that match your shell.
+
+PowerShell:
+
+```powershell
+Set-Location D:\Github
+if (Test-Path .\pi-rindaman) {
+  Set-Location .\pi-rindaman
+} else {
+  git clone https://github.com/mahdyarief/pi-rindaman.git
+  Set-Location .\pi-rindaman
+}
+```
+
+Bash:
+
+```bash
+if [ -d /d/Github/pi-rindaman ]; then
+  cd /d/Github/pi-rindaman
+else
+  cd /d/Github
+  git clone https://github.com/mahdyarief/pi-rindaman.git
+  cd pi-rindaman
+fi
+```
+
 ## Expected `pi list`
 
 Git install:
@@ -134,4 +160,4 @@ pi-rindaman/
 
 - discoverable through the `pi` manifest and `pi-package` keyword
 - Pi loads the extension directly from TypeScript
-- `typebox` is declared as the Pi extension peer dependency expected by Pi docs
+- the extension imports `@sinclair/typebox`, so that package is declared as a peer dependency

@@ -49,6 +49,7 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@sinclair/typebox": "^0.34.41",
     "@types/node": "^22.15.29",
     "typescript": "^5.8.2"
   },
@@ -64,6 +65,6 @@
     "@mariozechner/pi-ai": "*",
     "@mariozechner/pi-coding-agent": "*",
     "@mariozechner/pi-tui": "*",
-    "typebox": "*"
+    "@sinclair/typebox": "*"
   }
 }

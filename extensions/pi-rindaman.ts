@@ -119,6 +119,24 @@ const normalizeCommandText = (text: string) =>
     .toLowerCase()
     .replace(/^[\s"'`([{]+|[\s"'`)\]}!,.?:;]+$/g, "")
 
+const getLastNormalizedCommandLine = (text: string) => {
+  const lines = text.split(/\r?\n/).map(normalizeCommandText).filter(Boolean)
+  return lines.at(-1)
+}
+
+const stripCommandPrefix = (text: string, commandName: string) => {
+  const normalized = getLastNormalizedCommandLine(text)
+  if (!normalized) return ""
+
+  const prefixes = [`/${commandName}`, commandName]
+  for (const prefix of prefixes) {
+    if (normalized === prefix) return ""
+    if (normalized.startsWith(`${prefix} `)) return normalized.slice(prefix.length + 1).trim()
+  }
+
+  return normalized
+}
+
 const getToggle = (text: string) => {
   const onCommands = new Set([
     "/pi-rindaman on",
@@ -434,7 +452,7 @@ export default function piRindaman(pi: ExtensionAPI) {
     description: "Toggle pi-rindaman or change mode: on|off|mode <core|senior|reviewer|auto>",
     handler: async (args, ctx) => {
       const sessionId = getSessionId(ctx)
-      const trimmed = args.trim().toLowerCase()
+      const trimmed = stripCommandPrefix(args, "pi-rindaman")
 
       if (trimmed === "on") {
         sessionEnabledStates.set(sessionId, true)
@@ -465,7 +483,7 @@ export default function piRindaman(pi: ExtensionAPI) {
   pi.registerCommand("quality", {
     description: "Alias for /pi-rindaman on|off",
     handler: async (args, ctx) => {
-      const value = args.trim().toLowerCase()
+      const value = stripCommandPrefix(args, "quality")
       const sessionId = getSessionId(ctx)
       if (value === "on" || value === "off") {
         sessionEnabledStates.set(sessionId, value === "on")
@@ -480,7 +498,7 @@ export default function piRindaman(pi: ExtensionAPI) {
   pi.registerCommand("strict", {
     description: "Alias for /pi-rindaman on|off",
     handler: async (args, ctx) => {
-      const value = args.trim().toLowerCase()
+      const value = stripCommandPrefix(args, "strict")
       const sessionId = getSessionId(ctx)
       if (value === "on" || value === "off") {
         sessionEnabledStates.set(sessionId, value === "on")

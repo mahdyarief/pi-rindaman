@@ -175,6 +175,19 @@ test("CLI doctor supports JSON output", () => {
   assert.equal(output.status, "passed");
 });
 
+test("package peer dependencies cover extension runtime imports", () => {
+  const packageJson = JSON.parse(
+    readFileSync(resolve(packageDirectory, "package.json"), "utf8"),
+  );
+  const extensionSource = readFileSync(
+    resolve(packageDirectory, "extensions", "pi-rindaman.ts"),
+    "utf8",
+  );
+
+  assert.match(extensionSource, /from "@sinclair\/typebox"/);
+  assert.equal(packageJson.peerDependencies["@sinclair/typebox"], "*");
+});
+
 test("CLI check supports fixture-backed JSON output", () => {
   const result = runCli(["check", "--json"], minimalFixtureDirectory);
 
