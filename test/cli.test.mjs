@@ -823,6 +823,33 @@ test("CLI runner avoids shell-true child process execution", () => {
   assert.doesNotMatch(checkRunnerSource, /shell:\s*true/);
 });
 
+test("CLI semantic check executes the bundled quality engine", () => {
+  const result = runCli(["check", "--json", "--all"], packageDirectory);
+
+  assert.equal(result.stderr, "");
+  const output = JSON.parse(result.stdout);
+  const semanticCheck = findCheck(output, "semantic");
+
+  assert.equal(typeof result.status, "number");
+  assert.match(semanticCheck.command, /src[\\/]quality-engine[\\/]engine\.cjs/);
+  assert.equal(semanticCheck.status, "passed");
+  assert.equal(semanticCheck.exitCode, 0);
+});
+
+test("bundled quality engine executes successfully from the package root", () => {
+  const result = spawnSync(
+    "node",
+    [resolve(packageDirectory, "src", "quality-engine", "engine.cjs")],
+    {
+      cwd: packageDirectory,
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Quality Summary/);
+});
+
 test("npm pack dry run includes runtime package surfaces", () => {
   const result = runNpm(["pack", "--dry-run", "--json"], packageDirectory);
 

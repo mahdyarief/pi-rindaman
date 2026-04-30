@@ -11,9 +11,12 @@ function createCommandTestHarness(sessionId = "test-session") {
   const tools = new Map();
   const notifications = [];
   const entries = [];
+  const eventHandlers = new Map();
 
   const pi = {
-    on() {},
+    on(name, handler) {
+      eventHandlers.set(name, handler);
+    },
     appendEntry(_type, data) {
       entries.push(data);
     },
@@ -45,7 +48,7 @@ function createCommandTestHarness(sessionId = "test-session") {
 
   piRindaman(pi);
 
-  return { commands, tools, notifications, entries, ctx };
+  return { commands, tools, notifications, entries, eventHandlers, ctx };
 }
 
 test("extension exposes verification-only commands and strict toggles", async () => {
@@ -56,6 +59,7 @@ test("extension exposes verification-only commands and strict toggles", async ()
   await commands.get("pi-rindaman").handler("/pi-rindaman on", ctx);
   await commands.get("pi-rindaman").handler("/pi-rindaman mode reviewer", ctx);
   await commands.get("strict").handler("/strict off", ctx);
+  await commands.get("strict").handler("/strict maybe", ctx);
 
   assert.deepEqual(
     notifications.map(({ message, level }) => ({ message, level })),
@@ -63,6 +67,7 @@ test("extension exposes verification-only commands and strict toggles", async ()
       { message: "pi-rindaman enabled.", level: "info" },
       { message: "Usage: /pi-rindaman on|off", level: "error" },
       { message: "Strict mode disabled.", level: "info" },
+      { message: "Usage: /strict on|off", level: "error" },
     ],
   );
 });
@@ -78,11 +83,82 @@ test("pi_rindaman_check resolves the bundled CLI outside the active repo", async
       .get("pi_rindaman_check")
       .execute("tool-call-1", { json: true }, undefined, undefined, ctx);
 
-    assert.match(result.details.command, /bin[\\/]pi-rindaman\.cjs/);
     assert.equal(result.details.status, "passed");
+    assert.match(result.details.command, /^node /);
+    assert.match(result.details.command, /bin[\\/]pi-rindaman\.cjs/);
+    assert.equal(typeof result.details.checkedAt, "string");
+    assert.equal(result.details.exitCode, 0);
+    assert.match(result.content[0].text, /Final response allowed:/);
+    assert.match(result.content[0].text, /Check freshness:/);
   } finally {
     process.chdir(originalCwd);
   }
+});
+
+test("strict off is reflected in status output", async () => {
+  const { commands, tools, ctx } = createCommandTestHarness("strict-status-session");
+
+  await commands.get("strict").handler("/strict off", ctx);
+
+  const result = await tools
+    .get("pi_rindaman_status")
+    .execute("tool-call-3", {}, undefined, undefined, ctx);
+
+  const status = JSON.parse(result.content[0].text);
+
+  assert.equal(status.enabled, false);
+  assert.equal(status.strictResponses, false);
+  assert.equal(status.finalResponse.allowed, true);
+});
+
+test("status requires verification after tracked file changes", async () => {
+  const { eventHandlers, tools, ctx } = createCommandTestHarness("dirty-session");
+
+  await eventHandlers.get("tool_call")(
+    { toolName: "write", input: { path: "src/example.ts" } },
+    ctx,
+  );
+
+  const result = await tools
+    .get("pi_rindaman_status")
+    .execute("tool-call-4", {}, undefined, undefined, ctx);
+
+  const status = JSON.parse(result.content[0].text);
+
+  assert.equal(status.verificationRequired, true);
+  assert.equal(status.checkFreshness, "not_run");
+  assert.equal(status.finalResponse.allowed, false);
+  assert.equal(status.nextAction.command, "pi_rindaman_check");
+});
+
+test("successful check makes status fresh", async () => {
+  const originalCwd = process.cwd();
+  const { eventHandlers, tools, ctx } = createCommandTestHarness("fresh-check-session");
+
+  await eventHandlers.get("tool_call")(
+    { toolName: "write", input: { path: "src/example.ts" } },
+    ctx,
+  );
+
+  process.chdir(minimalFixtureDirectory);
+
+  try {
+    await tools
+      .get("pi_rindaman_check")
+      .execute("tool-call-5", { json: true }, undefined, undefined, ctx);
+  } finally {
+    process.chdir(originalCwd);
+  }
+
+  const result = await tools
+    .get("pi_rindaman_status")
+    .execute("tool-call-6", {}, undefined, undefined, ctx);
+
+  const status = JSON.parse(result.content[0].text);
+
+  assert.equal(status.checkFreshness, "fresh");
+  assert.equal(typeof status.finalResponse.allowed, "boolean");
+  assert.equal(status.lastCheck.status, "passed");
 });
 
 test("pi_rindaman_status reports verification-only status semantics", async () => {
@@ -99,7 +175,12 @@ test("pi_rindaman_status reports verification-only status semantics", async () =
   assert.equal(status.qualityLifecycle, true);
   assert.equal(typeof status.verificationRequired, "boolean");
   assert.equal(typeof status.checkFreshness, "string");
+  assert.equal(status.nextAction.command, "pi_rindaman_check");
+  assert.equal(typeof status.nextAction.reason, "string");
   assert.ok(status.lastCheck);
+  assert.equal(typeof status.lastCheck.status, "string");
+  assert.ok(Array.isArray(status.changedFiles));
+  assert.equal(typeof status.finalResponse.allowed, "boolean");
   assert.ok(status.finalResponse);
   assert.equal("mode" in status, false);
   assert.equal("secondaryLayer" in status, false);
