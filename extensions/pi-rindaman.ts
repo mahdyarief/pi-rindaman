@@ -2,7 +2,10 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
 import { runCheckTool } from "./pi-rindaman/check-tool.ts";
-import { getToggle, stripCommandPrefix } from "./pi-rindaman/command-parsing.ts";
+import {
+  getToggle,
+  stripCommandPrefix,
+} from "./pi-rindaman/command-parsing.ts";
 import { RINDAMAN_RULE } from "./pi-rindaman/constants.ts";
 import { createFinalResponseGate } from "./pi-rindaman/gating.ts";
 import {
@@ -15,7 +18,10 @@ import {
   setSessionEnabled,
   updateChangedFiles,
 } from "./pi-rindaman/state.ts";
-import { createCheckSummaryText, createStatusPayload } from "./pi-rindaman/status.ts";
+import {
+  createCheckSummaryText,
+  createStatusPayload,
+} from "./pi-rindaman/status.ts";
 import type { CheckToolParams } from "./pi-rindaman/types.ts";
 
 export default function piRindaman(pi: ExtensionAPI) {
@@ -30,7 +36,8 @@ export default function piRindaman(pi: ExtensionAPI) {
     const sessionId = getSessionId(ctx);
     setSessionEnabled(sessionId, toggle);
     persistState(pi, sessionId);
-    if (ctx.hasUI) ctx.ui.notify(`pi-rindaman ${toggle ? "enabled" : "disabled"}.`, "info");
+    if (ctx.hasUI)
+      ctx.ui.notify(`pi-rindaman ${toggle ? "enabled" : "disabled"}.`, "info");
     return { action: "handled" };
   });
 
@@ -47,13 +54,18 @@ export default function piRindaman(pi: ExtensionAPI) {
     const state = getSessionState(sessionId);
 
     if (event.toolName === "write" || event.toolName === "edit") {
-      const path = typeof event.input.path === "string" ? event.input.path : undefined;
+      const path =
+        typeof event.input.path === "string" ? event.input.path : undefined;
       addChangedFile(state, path);
     }
 
     if (event.toolName === "bash") {
-      const command = typeof event.input.command === "string" ? event.input.command : "";
-      if (/\bgit\s+(commit|push)\b/.test(command) || /\bgh\s+pr\s+create\b/.test(command)) {
+      const command =
+        typeof event.input.command === "string" ? event.input.command : "";
+      if (
+        /\bgit\s+(commit|push)\b/.test(command) ||
+        /\bgh\s+pr\s+create\b/.test(command)
+      ) {
         const enabled = getSessionEnabled(sessionId);
         const finalResponse = createFinalResponseGate(state, enabled);
         if (!finalResponse.allowed) {
@@ -83,6 +95,15 @@ export default function piRindaman(pi: ExtensionAPI) {
       const sessionId = getSessionId(ctx);
       const trimmed = stripCommandPrefix(args, "pi-rindaman");
 
+      if (trimmed === "") {
+        const enabled = getSessionEnabled(sessionId);
+        ctx.ui.notify(
+          `pi-rindaman is ${enabled ? "enabled" : "disabled"}. Use /pi-rindaman on|off. Run pi_rindaman_status for session state.`,
+          "info",
+        );
+        return;
+      }
+
       if (trimmed === "on") {
         setSessionEnabled(sessionId, true);
         persistState(pi, sessionId);
@@ -108,7 +129,10 @@ export default function piRindaman(pi: ExtensionAPI) {
       if (value === "on" || value === "off") {
         setSessionEnabled(sessionId, value === "on");
         persistState(pi, sessionId);
-        ctx.ui.notify(`Strict mode ${value === "on" ? "enabled" : "disabled"}.`, "info");
+        ctx.ui.notify(
+          `Strict mode ${value === "on" ? "enabled" : "disabled"}.`,
+          "info",
+        );
         return;
       }
       ctx.ui.notify("Usage: /strict on|off", "error");
@@ -122,9 +146,16 @@ export default function piRindaman(pi: ExtensionAPI) {
       "Run pi-rindaman quality verification from the current project directory and record session check status.",
     parameters: Type.Object({
       mode: Type.Optional(
-        Type.Union([Type.Literal("check"), Type.Literal("audit"), Type.Literal("doctor")], {
-          default: "check",
-        }),
+        Type.Union(
+          [
+            Type.Literal("check"),
+            Type.Literal("audit"),
+            Type.Literal("doctor"),
+          ],
+          {
+            default: "check",
+          },
+        ),
       ),
       json: Type.Optional(Type.Boolean({ default: false })),
       strict: Type.Optional(Type.Boolean({ default: false })),
@@ -133,14 +164,21 @@ export default function piRindaman(pi: ExtensionAPI) {
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const sessionId = getSessionId(ctx);
       const state = getSessionState(sessionId);
-      const { commandArgs, result } = runCheckTool(ctx.cwd, params as CheckToolParams);
+      const { commandArgs, result } = runCheckTool(
+        ctx.cwd,
+        params as CheckToolParams,
+      );
 
       updateChangedFiles(state, ctx.cwd);
       state.lastCheckAt = new Date().toISOString();
       state.lastCheckCommand = ["node", ...commandArgs].join(" ");
       state.lastCheckExitCode = result.status;
       state.dirtySinceCheck = false;
-      state.lastCheckStatus = result.error ? "error" : result.status === 0 ? "passed" : "failed";
+      state.lastCheckStatus = result.error
+        ? "error"
+        : result.status === 0
+          ? "passed"
+          : "failed";
       persistState(pi, sessionId);
 
       const enabled = getSessionEnabled(sessionId);
@@ -149,7 +187,12 @@ export default function piRindaman(pi: ExtensionAPI) {
         content: [
           {
             type: "text",
-            text: createCheckSummaryText(result.stdout ?? "", result.stderr ?? "", state, enabled),
+            text: createCheckSummaryText(
+              result.stdout ?? "",
+              result.stderr ?? "",
+              state,
+              enabled,
+            ),
           },
         ],
         details: {

@@ -4,7 +4,11 @@ import test from "node:test";
 
 import piRindaman from "../extensions/pi-rindaman.ts";
 
-const minimalFixtureDirectory = resolve(import.meta.dirname, "fixtures", "minimal-project");
+const minimalFixtureDirectory = resolve(
+  import.meta.dirname,
+  "fixtures",
+  "minimal-project",
+);
 
 function createCommandTestHarness(sessionId = "test-session") {
   const commands = new Map();
@@ -52,10 +56,12 @@ function createCommandTestHarness(sessionId = "test-session") {
 }
 
 test("extension exposes verification-only commands and strict toggles", async () => {
-  const { commands, notifications, ctx } = createCommandTestHarness("commands-session");
+  const { commands, notifications, ctx } =
+    createCommandTestHarness("commands-session");
 
   assert.equal(commands.has("quality"), false);
 
+  await commands.get("pi-rindaman").handler("/pi-rindaman", ctx);
   await commands.get("pi-rindaman").handler("/pi-rindaman on", ctx);
   await commands.get("pi-rindaman").handler("/pi-rindaman mode reviewer", ctx);
   await commands.get("strict").handler("/strict off", ctx);
@@ -64,6 +70,11 @@ test("extension exposes verification-only commands and strict toggles", async ()
   assert.deepEqual(
     notifications.map(({ message, level }) => ({ message, level })),
     [
+      {
+        message:
+          "pi-rindaman is enabled. Use /pi-rindaman on|off. Run pi_rindaman_status for session state.",
+        level: "info",
+      },
       { message: "pi-rindaman enabled.", level: "info" },
       { message: "Usage: /pi-rindaman on|off", level: "error" },
       { message: "Strict mode disabled.", level: "info" },
@@ -96,7 +107,9 @@ test("pi_rindaman_check resolves the bundled CLI outside the active repo", async
 });
 
 test("strict off is reflected in status output", async () => {
-  const { commands, tools, ctx } = createCommandTestHarness("strict-status-session");
+  const { commands, tools, ctx } = createCommandTestHarness(
+    "strict-status-session",
+  );
 
   await commands.get("strict").handler("/strict off", ctx);
 
@@ -112,7 +125,8 @@ test("strict off is reflected in status output", async () => {
 });
 
 test("status requires verification after tracked file changes", async () => {
-  const { eventHandlers, tools, ctx } = createCommandTestHarness("dirty-session");
+  const { eventHandlers, tools, ctx } =
+    createCommandTestHarness("dirty-session");
 
   await eventHandlers.get("tool_call")(
     { toolName: "write", input: { path: "src/example.ts" } },
@@ -133,7 +147,9 @@ test("status requires verification after tracked file changes", async () => {
 
 test("successful check makes status fresh", async () => {
   const originalCwd = process.cwd();
-  const { eventHandlers, tools, ctx } = createCommandTestHarness("fresh-check-session");
+  const { eventHandlers, tools, ctx } = createCommandTestHarness(
+    "fresh-check-session",
+  );
 
   await eventHandlers.get("tool_call")(
     { toolName: "write", input: { path: "src/example.ts" } },
