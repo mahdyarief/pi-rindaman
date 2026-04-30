@@ -32,29 +32,33 @@ This repository publishes three Pi-facing surfaces:
 
 This repository no longer presents the legacy plugin runtime as a public surface.
 
-## Install in Pi
-
-Install as a user package:
+## Quick install
 
 ```bash
 pi install git:github.com/mahdyarief/pi-rindaman
 ```
 
-Install from a local checkout:
+Local checkout install also works:
 
 ```bash
 pi install .
 ```
 
-Install project-locally:
+Project-local install also works:
 
 ```bash
 pi install -l .
 ```
 
-## Expected `pi list`
+## Confirm the package was installed
 
-Git install:
+Run:
+
+```bash
+pi list
+```
+
+Expected git-install output:
 
 ```text
 User packages:
@@ -62,30 +66,33 @@ User packages:
     C:\Users\Lenovo\.pi\agent\git\github.com\mahdyarief\pi-rindaman
 ```
 
-Local install:
+Expected local-install output:
 
 ```text
 User packages:
   C:\path\to\pi-rindaman
 ```
 
-## What Pi loads
+## Reload Pi so the package surfaces are available
 
-### Skill
+- Run `/reload`, or restart Pi.
 
-- `skills/pi-rindaman/SKILL.md`
-- provides `/skill:pi-rindaman`
+After reload, the package should expose:
+- `/skill:pi-rindaman`
+- `/pi-rindaman on`
+- `/pi-rindaman off`
+- `/strict on`
+- `/strict off`
+- `pi_rindaman_check`
+- `pi_rindaman_status`
 
-### Extension
+## Run one proof command
 
-- `extensions/pi-rindaman.ts`
-- provides:
-  - `/pi-rindaman on`
-  - `/pi-rindaman off`
-  - `/strict on`
-  - `/strict off`
-  - `pi_rindaman_check`
-  - `pi_rindaman_status`
+```text
+pi_rindaman_status
+```
+
+The first proof is not “all checks pass.” The first proof is that the package is loaded and responding.
 
 ## Verification workflow in Pi
 
@@ -95,6 +102,12 @@ When code changed:
 2. if verification is required, run `pi_rindaman_check`
 3. run `pi_rindaman_status` again
 4. only claim done when `finalResponse.allowed` is `true`
+
+## First-run troubleshooting
+
+- `pi list` does not show `git:github.com/mahdyarief/pi-rindaman`: install the package again.
+- `pi list` shows the package, but commands or tools are missing: run `/reload` or restart Pi.
+- `pi_rindaman_status` is still unavailable after reload: verify the package path in `pi list`, then reload again.
 
 ## CLI
 

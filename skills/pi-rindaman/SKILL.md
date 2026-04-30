@@ -15,6 +15,21 @@ It provides:
 
 It does not provide planning, orchestration, brainstorming, or workflow methodology. Those concerns belong to workflow packages such as `pi-superpowers-plus`.
 
+## Package installed? Verify it first
+
+1. Run `pi list`
+2. Run `/reload` or restart Pi
+3. Confirm these surfaces are available:
+   - `/pi-rindaman on`
+   - `/pi-rindaman off`
+   - `/strict on`
+   - `/strict off`
+   - `pi_rindaman_status`
+   - `pi_rindaman_check`
+4. Run `pi_rindaman_status`
+
+The first proof is that the package is loaded and responding.
+
 ## What the extension provides
 
 When the package is installed, the bundled Pi extension adds:
@@ -76,4 +91,4 @@ Local checkout install also works:
 pi install .
 ```
 
-Then `pi list` should show either the git package source or the local path, depending on how you installed it.
+Then `pi list` should show either the git package source or the local path, depending on how you installed it. After install, run `/reload` before expecting `pi_rindaman_status` or `pi_rindaman_check` to appear.

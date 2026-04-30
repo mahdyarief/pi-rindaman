@@ -17,6 +17,9 @@ const configPrecedenceFixtureDirectory = resolve(testDirectory, "fixtures", "con
 const debtConfigFixtureDirectory = resolve(testDirectory, "fixtures", "debt-config");
 const monorepoFixtureDirectory = resolve(testDirectory, "fixtures", "monorepo-project");
 
+const readPackageFile = (relativePath) =>
+  readFileSync(resolve(packageDirectory, relativePath), "utf8");
+
 function runCli(args, cwd, env = {}) {
   return spawnSync("node", [cliPath, ...args], {
     cwd,
@@ -848,6 +851,23 @@ test("bundled quality engine executes successfully from the package root", () =>
 
   assert.equal(result.status, 0);
   assert.match(result.stdout, /Quality Summary/);
+});
+
+test("README documents the standalone first-run install flow", () => {
+  const readme = readPackageFile("README.md");
+
+  assert.match(readme, /pi install git:github\.com\/mahdyarief\/pi-rindaman/);
+  assert.match(readme, /pi list/);
+  assert.match(readme, /\/reload/);
+  assert.match(readme, /pi_rindaman_status/);
+});
+
+test("skill documents the standalone first-run verification flow", () => {
+  const skill = readPackageFile("skills/pi-rindaman/SKILL.md");
+
+  assert.match(skill, /pi list/);
+  assert.match(skill, /\/reload/);
+  assert.match(skill, /pi_rindaman_status/);
 });
 
 test("npm pack dry run includes runtime package surfaces", () => {
